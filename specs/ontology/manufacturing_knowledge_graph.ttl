@@ -1,0 +1,51 @@
+@prefix mk: <https://makota.ai/ontology/manufacturing#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# ==========================================
+# Makota Industrial Knowledge Graph Ontology
+# ==========================================
+
+mk:ManufacturingOntology a owl:Ontology ;
+    rdfs:label "Makota Industrial Knowledge Graph — Онтология металлообработки" ;
+    rdfs:comment "Связывает свойства металлов, режимы резания, геометрию инструмента, типы дефектов и ЧПУ-оборудование." .
+
+# Классы
+mk:Material a owl:Class ; rdfs:label "Материал / Сплав" .
+mk:Tool a owl:Class ; rdfs:label "Режущий инструмент" .
+mk:Insert a owl:Class ; rdfs:label "Твердосплавная пластина" .
+mk:CuttingRegime a owl:Class ; rdfs:label "Технологический режим резания" .
+mk:Defect a owl:Class ; rdfs:label "Производственный дефект" .
+mk:Machine a owl:Class ; rdfs:label "Станок ЧПУ" .
+
+# Свойства
+mk:hasHardnessHB a owl:DatatypeProperty ; rdfs:domain mk:Material ; rdfs:range xsd:integer ; rdfs:label "Твердость по Бринеллю (HB)" .
+mk:hasISOGroup a owl:DatatypeProperty ; rdfs:domain mk:Material ; rdfs:range xsd:string ; rdfs:label "Группа обрабатываемости ISO (P, M, K, N, S, H)" .
+mk:recommendedFor a owl:ObjectProperty ; rdfs:domain mk:Insert ; rdfs:range mk:Material ; rdfs:label "Рекомендовано для материала" .
+mk:causesDefect a owl:ObjectProperty ; rdfs:domain mk:CuttingRegime ; rdfs:range mk:Defect ; rdfs:label "Приводит к дефекту при нарушении" .
+mk:hasRemedy a owl:DatatypeProperty ; rdfs:domain mk:Defect ; rdfs:range xsd:string ; rdfs:label "Корректирующее действие" .
+
+# Примеры фактов базы знаний (Индустриальная память)
+
+# Материал: Сталь 40Х
+mk:Steel40X a mk:Material ;
+    rdfs:label "Сталь конструкционная легированная 40Х" ;
+    mk:hasISOGroup "P" ;
+    mk:hasHardnessHB 217 .
+
+# Материал: Сталь 12Х18Н10Т
+mk:Steel12X18N10T a mk:Material ;
+    rdfs:label "Сталь коррозионно-стойкая аустенитная 12Х18Н10Т" ;
+    mk:hasISOGroup "M" ;
+    mk:hasHardnessHB 179 .
+
+# Дефекты и эмпирические правила наладчиков
+mk:VibrationDefect a mk:Defect ;
+    rdfs:label "Дробление и вибрация при растачивании" ;
+    mk:hasRemedy "Уменьшить вылет резца L/D < 4, уменьшить радиус при вершине r_eps до 0.4 мм, снизить скорость резания на 25%." .
+
+mk:BuiltUpEdgeDefect a mk:Defect ;
+    rdfs:label "Наростообразование на нержавеющей стали 12Х18Н10Т" ;
+    mk:hasRemedy "Увеличить скорость резания Vc > 160 м/мин для выхода из зоны нароста, обеспечить высокое давление СОЖ в зону резания." .

@@ -1,80 +1,63 @@
-# Makota — Пульт управления проектом
+# Makota — Пульт управления Industrial Intelligence 2026
 
-> **Последнее обновление**: 2026-11-14 | **Версия гипотезы**: 1.0
-
----
-
-## Статус пайплайна Founder Suite
-
-| # | Скилл | Статус | Артефакт | Запустить |
-|---|-------|--------|----------|-----------|
-| 1 | 📋 `/founder-board` | ⏳ Ожидает | `founder/board.md` | Скажи "запусти совет директоров" |
-| 2 | 🔍 `/founder-competitors` | ⏳ Ожидает | `founder/competitors.md` | Скажи "проанализируй конкурентов" |
-| 3 | 👥 `/founder-consumer` | 🟡 Инициализировано | `founder/panel/` | 20 персон сгенерированы, нужны ответы |
-| 4 | 💲 `/founder-pricing` | ⏳ Ожидает | `founder/pricing-curve.md` | После founder-consumer |
-| 5 | 🎯 `/founder-offer` | ⏳ Ожидает | `founder/offer.md` | После founder-pricing |
-| 6 | 💰 `/founder-cfo` | ✅ Готово | [`founder/cfo.md`](founder/cfo.md) | — |
-| 7 | 📢 `/founder-marketing` | ⏳ Ожидает | `founder/marketing.md` | Скажи "создай план маркетинга" |
-| 8 | 🏷️ `/founder-brand` | ⏳ Ожидает | `founder/brand.md` | Скажи "разработай бренд" |
-| 9 | ⚙️ `/founder-ops` | ⏳ Ожидает | `founder/ops.md` | Скажи "опиши операционку" |
-| 10 | 🚀 `/founder-launch` | ⏳ Ожидает | `founder/launch.md` | Скажи "создай план запуска" |
-| 11 | 📄 `/founder-plan` | ⏳ Ожидает | `founder/business-plan.md` | Скажи "скомпилируй бизнес-план" |
+> **Текущий статус**: Реализация Фазы 1 (Инженерный фундамент и спецификации)  
+> **Версия архитектуры**: Industrial Intelligence Core v2.0  
+> **Последнее обновление**: 2026-11-14
 
 ---
 
-## Ключевые показатели (CFO, текущие)
+## 🏭 Индустриальная операционная система: Архитектурные слои
 
-| Метрика | Значение | Статус |
-|---------|----------|--------|
-| **Маржа с заказа** | 13% (2 000 руб./контракт) | ⚠️ Низкая — требует пересмотра цены или снижения с/с |
-| **Точка безубыточности** | 4 заказа/день (88/мес) | ✅ Достижимо при текущем потоке |
-| **Прогноз прибыли год 1** | 2.3 млн руб. | ✅ При 8 заказах/день |
-| **Окупаемость** | Месяц 2 | ✅ Быстрая |
-| **Стартовые инвестиции** | 200 000 руб. | ✅ Разумный объём |
-
-> [!CAUTION]
-> **Критический риск**: При снижении цены на 10% или росте с/с на 15% — бизнес уходит в минус. Необходима проверка реальных цен поставщиков перед финальным расчётом.
+| Слой | Назначение | Статус спецификации | Спецификация / Артефакт |
+|---|---|---|---|
+| **01. Digital Thread** | Сквозной цифровой паспорт заказа (ISO 23247) | ✅ Готово | [`specs/schemas/digital_thread_order.schema.json`](specs/schemas/digital_thread_order.schema.json) |
+| **02. AI Cost Engineering** | Моделирование альтернатив и расчет себестоимости | ✅ Готово | [`specs/agents/cost_engineer_spec.md`](specs/agents/cost_engineer_spec.md) |
+| **03. Dynamic Scheduling** | Алгоритмическое расписание ЧПУ (без LLM) | 🟡 В разработке | `specs/agents/production_planner_spec.md` |
+| **04. Constraint Intel** | Мониторинг узких мест и «бегунок» (Order Controller) | ✅ Готово | [`specs/agents/order_controller_spec.md`](specs/agents/order_controller_spec.md) |
+| **05. Quality Intelligence** | Замкнутый контур точности и CMM-замеры | 🟡 В разработке | `specs/schemas/qc_protocol.schema.json` |
+| **06. Knowledge Graph** | Технологическая память и онтология металлообработки | ✅ Готово | [`specs/ontology/manufacturing_knowledge_graph.ttl`](specs/ontology/manufacturing_knowledge_graph.ttl) |
+| **07. Make-or-Buy** | Точка безразличия: свое ЧПУ vs Субподряд | ⏳ Ожидает | Включено в Cost Engineer |
+| **08. Procurement Pool** | Агрегация заказов металла в оптовые лоты | ✅ Готово | [`specs/agents/procurement_pool_spec.md`](specs/agents/procurement_pool_spec.md) |
+| **09. CNC Telemetry** | Edge-мониторинг станков ЧПУ (OPC UA / MTConnect) | ✅ Готово | [`specs/schemas/machine_telemetry.schema.json`](specs/schemas/machine_telemetry.schema.json) |
+| **10. Tool Registry** | Учет стойкости режущего инструмента и пластин | ✅ Готово | [`specs/schemas/tool_registry.schema.json`](specs/schemas/tool_registry.schema.json) |
 
 ---
 
-## Покупательская панель
+## 📊 Финансовые метрики проекта (CFO: Модель внедрения Industrial OS)
 
-- **Создано персон**: 20 (seed=42)
-- **Ответили**: 0 из 20
-- **Buy rate**: не определён
-- **Следующий шаг**: запустить скилл `/founder-consumer` для получения ответов от 20 субагентов-покупателей
+| Метрика | Значение | Оценка |
+|---|---|---|
+| **Стоимость пилота завода** | 150 000 руб./мес | Рыночный оптимум для B2B |
+| **Маржинальность контракта** | **67%** (100 000 руб./мес с клиента) | Высокая доходность консалтинга + софта |
+| **Точка безубыточности (Break-even)** | **2.5 контракта/мес** | Полная защита постоянных затрат (250 тыс. руб.) |
+| **План первого года (5 заводов)** | **2.97 млн руб. чистой прибыли** | При выручке 8.96 млн руб. |
+| **Срок окупаемости стартовых инвестиций** | **2-й месяц** | Быстрый возврат затрат ($300 тыс. руб.) |
+| **Стресс-тест (-10% к цене)** | 26% маржи (+$2.07 млн прибыли) | Запас прочности модели подтвержден |
 
-```bash
-# Просмотр брифов для субагентов (волна 1)
-python3 skills/founder-consumer/panel.py prompts --wave 3
+Полный финансовый расчет: [`founder/cfo.md`](founder/cfo.md)
+
+---
+
+## 🎯 90-Дневная Дорожная Карта Пилота
+
+```
+[Фаза 1: Дни 1-15] Диагностика 30-50 заказов + Карта потерь ──────────────► В ТЕКУЩЕЙ РАБОТЕ
+[Фаза 2: Дни 16-30] Слой данных: Digital Thread + 1C + 2 ЧПУ (Read-Only)
+[Фаза 3: Дни 31-60] Три пилота: Cost Engineer + Order Controller + Tooling
+[Фаза 4: Дни 61-90] Аудит экономики в рублях + Защита тиражирования
 ```
 
 ---
 
-## Гипотеза v1.0
-
-**Продукт**: ИИ-диспетчер заказов для производственного предприятия  
-**Цена**: 15 000 руб./мес (SaaS) + наценка на комплектацию  
-**Клиент**: Снабженец/закупщик промышленного B2B  
-**Главная боль**: Медленное КП и невидимые задержки исполнения  
-**УТП**: 15 минут вместо 2 дней + активный контроль цепочки  
-
-Источник: [`inputs/transcripts/Meet_2026-11-11_Automation.md`](inputs/transcripts/Meet_2026-11-11_Automation.md)
-
----
-
-## Быстрые команды
+## 🛠 Быстрые команды валидации
 
 ```bash
+# Валидация JSON схем
+python3 -c "import json, jsonschema; [jsonschema.Draft202012Validator.check_schema(json.load(open(f))) for f in ['specs/schemas/digital_thread_order.schema.json', 'specs/schemas/machine_telemetry.schema.json', 'specs/schemas/tool_registry.schema.json']]; print('✅ Все схемы валидны')"
+
+# Прогон тестового люкса
+python3 -m unittest discover -s tests -v
+
 # Юнит-экономика
 python3 skills/founder-cfo/unit_economics.py founder/numbers.json
-
-# Статус панели покупателей  
-python3 skills/founder-consumer/panel.py status
-
-# Компиляция бизнес-плана (когда готово)
-python3 skills/founder-plan/compile.py --dir founder
-
-# Все тесты
-python3 -m unittest discover -s tests -v
 ```

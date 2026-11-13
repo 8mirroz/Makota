@@ -1,0 +1,160 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://makota.ai/schemas/digital-thread-order.schema.json",
+  "title": "ManufacturingDigitalThreadOrder",
+  "description": "Сквозной цифровой паспорт заказа высокоточного мелкосерийного производства по стандарту ISO 23247 / NIST Digital Thread.",
+  "type": "object",
+  "required": [
+    "order_uuid",
+    "customer_info",
+    "part_specification",
+    "cost_engineering",
+    "lifecycle_status"
+  ],
+  "properties": {
+    "order_uuid": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Уникальный сквозной идентификатор детали/заказа в цифровой нити."
+    },
+    "order_number": {
+      "type": "string",
+      "description": "Номер заказа во внутренней ERP / 1С."
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "customer_info": {
+      "type": "object",
+      "required": ["company_name", "contact_person", "segment"],
+      "properties": {
+        "company_name": { "type": "string" },
+        "contact_person": { "type": "string" },
+        "segment": {
+          "type": "string",
+          "enum": ["строительный генподрядчик", "машиностроительный завод", "ремонтно-сервисное", "частное ЧПУ", "другое"]
+        },
+        "target_delivery_date": { "type": "string", "format": "date" }
+      }
+    },
+    "part_specification": {
+      "type": "object",
+      "required": ["drawing_number", "part_name", "material_grade", "batch_size"],
+      "properties": {
+        "drawing_number": { "type": "string", "description": "Обозначение чертежа / децимальный номер." },
+        "drawing_revision": { "type": "string", "default": "rev_01" },
+        "part_name": { "type": "string" },
+        "cad_file_path": { "type": "string", "description": "Путь к 3D CAD файлу (STEP, Parasolid, IGES)." },
+        "material_grade": { "type": "string", "description": "Марка стали/сплава (например, 40Х, 12Х18Н10Т, 09Г2С, Д16Т)." },
+        "raw_stock_type": {
+          "type": "string",
+          "enum": ["круг прокат", "шестигранник", "труба", "поковка", "листовой прокат"]
+        },
+        "raw_stock_diameter_mm": { "type": "number" },
+        "raw_stock_length_mm": { "type": "number" },
+        "batch_size": { "type": "integer", "minimum": 1 },
+        "critical_tolerances": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["feature", "nominal", "upper_deviation", "lower_deviation"],
+            "properties": {
+              "feature": { "type": "string", "example": "Посадка под подшипник D40" },
+              "nominal": { "type": "number" },
+              "upper_deviation": { "type": "number" },
+              "lower_deviation": { "type": "number" },
+              "roughness_ra": { "type": "number" }
+            }
+          }
+        }
+      }
+    },
+    "cost_engineering": {
+      "type": "object",
+      "required": ["calculation_status", "alternative_routes"],
+      "properties": {
+        "calculation_status": {
+          "type": "string",
+          "enum": ["черновик", "рассчитано ИИ", "утверждено технологом", "отклонено"]
+        },
+        "raw_material_cost_per_unit_rub": { "type": "number" },
+        "planned_machine_time_min": { "type": "number" },
+        "alternative_routes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["route_id", "route_name", "estimated_cost_rub", "lead_time_days"],
+            "properties": {
+              "route_id": { "type": "string" },
+              "route_name": { "type": "string" },
+              "estimated_cost_rub": { "type": "number" },
+              "lead_time_days": { "type": "integer" },
+              "make_or_buy": { "type": "string", "enum": ["собственное ЧПУ", "субподряд", "гибридное"] }
+            }
+          }
+        },
+        "selected_route_id": { "type": "string" },
+        "final_quoted_price_rub": { "type": "number" }
+      }
+    },
+    "production_execution": {
+      "type": "object",
+      "properties": {
+        "machine_id": { "type": "string", "description": "Идентификатор станка ЧПУ." },
+        "cam_program_id": { "type": "string", "description": "Ревизия УП ЧПУ." },
+        "actual_spindle_time_min": { "type": "number" },
+        "setup_time_min": { "type": "number" },
+        "tool_wear_log": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "tool_id": { "type": "string" },
+              "wear_minutes": { "type": "number" }
+            }
+          }
+        }
+      }
+    },
+    "quality_intelligence": {
+      "type": "object",
+      "properties": {
+        "cmm_protocol_id": { "type": "string" },
+        "qc_verdict": { "type": "string", "enum": ["годен", "брак", "условно годен"] },
+        "measured_cpk": { "type": "number" },
+        "scrap_cost_rub": { "type": "number", "default": 0 }
+      }
+    },
+    "lifecycle_status": {
+      "type": "string",
+      "enum": [
+        "01_заявка_получена",
+        "02_расчет_себестоимости",
+        "03_КП_отправлено",
+        "04_заказ_подтвержден",
+        "05_закупка_сырья_ожидание",
+        "06_сырье_на_складе",
+        "07_в_очереди_цеха",
+        "08_в_обработке_чпу",
+        "09_контроль_качества_отк",
+        "10_отгружен_клиенту",
+        "11_закрыт_прибыль_зафиксирована",
+        "99_отменен_проигран"
+      ]
+    },
+    "timestamps_log": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["status", "timestamp", "actor"],
+        "properties": {
+          "status": { "type": "string" },
+          "timestamp": { "type": "string", "format": "date-time" },
+          "actor": { "type": "string" },
+          "comment": { "type": "string" }
+        }
+      }
+    }
+  }
+}

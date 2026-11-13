@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://makota.ai/schemas/tool-registry.schema.json",
+  "title": "IndustrialToolRegistryItem",
+  "description": "Схема инструментального паспорта режущего инструмента, сменных твердосплавных пластин и учета стойкости.",
+  "type": "object",
+  "required": [
+    "tool_id",
+    "tool_type",
+    "insert_type",
+    "standard_tool_life_minutes"
+  ],
+  "properties": {
+    "tool_id": {
+      "type": "string",
+      "description": "Уникальный инвентарный номер инструмента (например, TOOL-EXT-TURN-DNMG)."
+    },
+    "tool_type": {
+      "type": "string",
+      "enum": ["проходной резец", "расточной резец", "резьбовой резец", "концевая фреза", "торцевая фреза", "сверло с мехкреплением", "метчик"]
+    },
+    "holder_model": {
+      "type": "string",
+      "description": "Маркировка державки / патрона (например, DDJNL 2525 M15)."
+    },
+    "insert_type": {
+      "type": "string",
+      "description": "Обозначение пластины по ISO (например, DNMG 150608-PM)."
+    },
+    "insert_grade": {
+      "type": "string",
+      "description": "Сплав пластины (Sandvik GC4325, Iscar IC807, отечественный ТН20/ВК8)."
+    },
+    "applicable_materials": {
+      "type": "array",
+      "items": { "type": "string", "enum": ["P_стали", "M_нержавейка", "K_чугун", "N_цветные", "S_жаропрочные", "H_закаленные"] }
+    },
+    "standard_tool_life_minutes": {
+      "type": "number",
+      "description": "Нормативная стойкость режущей кромки (обычно 15–30 минут чистого резания)."
+    },
+    "accumulated_cut_time_minutes": {
+      "type": "number",
+      "default": 0
+    },
+    "recommended_cutting_data": {
+      "type": "object",
+      "properties": {
+        "cutting_speed_vc_m_min": { "type": "number" },
+        "feed_fn_mm_rev": { "type": "number" },
+        "depth_of_cut_ap_mm": { "type": "number" }
+      }
+    },
+    "status": {
+      "type": "string",
+      "enum": ["на_складе", "установлен_в_станок", "требуется_поворот_пластины", "списан_износ", "аварийный_скол"]
+    }
+  }
+}
