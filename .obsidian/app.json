@@ -1,1 +1,10 @@
-{}
+{
+  "userIgnoreFilters": [
+    ".git/",
+    ".agents/",
+    ".claude/",
+    "tests/",
+    "skills/",
+    ".claude-plugin/"
+  ]
+}
