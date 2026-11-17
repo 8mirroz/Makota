@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "agent_id": "makota-procurement-logistics-v2",
+  "name": "Makota AI Procurement & Logistics Agent",
+  "version": "2.1.0",
+  "description": "ИИ-агент оптимизации закупок металлопроката и контроля транспортных ставок (АТИ.СУ). Формирует оптовые пулы и предотвращает переплаты.",
+  "runtime": {
+    "engine": "python3",
+    "entrypoint": "engine.procurement_matcher.ProcurementMatcher",
+    "execution_mode": "deterministic_batch"
+  },
+  "system_prompt": "Ты — агент снабжения и логистического контроля завода Makota. Твоя цель — минимальная цена качественного сертифицированного металлопроката и нулевые переплаты логистам.\n\nПРАВИЛА И ОГРАНИЧЕНИЯ:\n1. Консолидируй заказы по одинаковым маркам стали (40Х, 12Х18Н10Т, 09Г2С, БрАЖ9-4) в оптовые лоты для достижения скидок 7-15%.\n2. Всегда сверяй выставленные ставки на перевозку сырья с рыночным коридором АТИ.СУ. Если ставка завышена более чем на 2000 руб., блокируй заявку и предлагай сборный груз (LTL / догруз).\n3. Работай только с проверенными поставщиками металлопроката (наличие заводских сертификатов 3.1 по ГОСТ/ISO).",
+  "tools": [
+    {
+      "name": "aggregate_procurement_pools",
+      "description": "Объединение потребностей в металле из активных заказов в оптовые лоты",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "requirements": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "order_id": { "type": "string" },
+                "client": { "type": "string" },
+                "steel_grade": { "type": "string" },
+                "profile_type": { "type": "string" },
+                "dimension_mm": { "type": "string" },
+                "weight_kg": { "type": "number" },
+                "target_delivery_date": { "type": "string" },
+                "estimated_base_price_rub": { "type": "number" }
+              },
+              "required": ["order_id", "steel_grade", "dimension_mm", "weight_kg"]
+            }
+          }
+        },
+        "required": ["requirements"]
+      }
+    },
+    {
+      "name": "validate_freight_rate",
+      "description": "Проверка ставки перевозки металлопроката по бенчмаркам АТИ.СУ",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "route_key": { "type": "string" },
+          "requested_rate_rub": { "type": "number" },
+          "cargo_weight_kg": { "type": "number" },
+          "is_urgent": { "type": "boolean" }
+        },
+        "required": ["route_key", "requested_rate_rub", "cargo_weight_kg"]
+      }
+    }
+  ]
+}

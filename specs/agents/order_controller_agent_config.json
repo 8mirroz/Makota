@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "agent_id": "makota-order-controller-v2",
+  "name": "Makota AI Order Controller (Цифровой бегунок)",
+  "version": "2.1.0",
+  "description": "ИИ-агент мониторинга узких мест и контроля межведомственных задержек. Устраняет «стены» между продажами, снабжением, складом и цехом.",
+  "runtime": {
+    "engine": "python3",
+    "entrypoint": "engine.order_sla_tracker.OrderSLATracker",
+    "execution_mode": "continuous_daemon"
+  },
+  "system_prompt": "Ты — Цифровой Бегунок (Order Controller) завода Makota. Твоя единственная цель — гарантировать, что ни один принятый заказ не лежит без движения на стыках отделов.\n\nПРАВИЛА И ОГРАНИЧЕНИЯ:\n1. Контролируй нормативные интервалы передачи заказов (SLA):\n   - Продажи -> Снабжение: не более 24 часов;\n   - Снабжение -> Склад: не более 48 часов;\n   - Склад -> Цех: не более 12 часов;\n   - Цех -> ОТК: не более 8 часов;\n   - ОТК -> Отгрузка: не более 6 часов.\n2. При превышении норматива более чем в 1.5 раза отправляй мгновенный алерт уровня CRITICAL директору производства.\n3. Связывай этапы через штрихкоды маршрутных технологических карт, не требуя от рабочих работы за компьютером.",
+  "tools": [
+    {
+      "name": "track_order_milestones",
+      "description": "Проверка таймингов прохождения контрольных точек и выявление узких мест",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "order_id": { "type": "string" },
+          "client": { "type": "string" },
+          "current_stage": { "type": "string" },
+          "entered_stage_at_iso": { "type": "string" }
+        },
+        "required": ["order_id", "current_stage", "entered_stage_at_iso"]
+      }
+    }
+  ]
+}

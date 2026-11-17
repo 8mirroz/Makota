@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Makota Industrial OS — Интерактивный пульс управления заводом</title>
+  <style>
+    :root {
+      --bg-dark: #0b0f17;
+      --bg-card: #131a26;
+      --bg-card-hover: #1a2333;
+      --border-color: #233044;
+      --border-accent: #334460;
+      --text-main: #e2e8f0;
+      --text-muted: #8e9bb0;
+      --accent-blue: #3b82f6;
+      --accent-cyan: #06b6d4;
+      --accent-green: #10b981;
+      --accent-amber: #f59e0b;
+      --accent-red: #ef4444;
+      --accent-purple: #8b5cf6;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      line-height: 1.5;
+      padding: 24px;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--border-color);
+      margin-bottom: 24px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .brand-logo {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      color: #fff;
+      font-size: 20px;
+    }
+    .brand-title h1 {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+    .brand-title p {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      color: var(--accent-green);
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      font-family: var(--font-mono);
+    }
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      background-color: var(--accent-green);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--accent-green);
+    }
+
+    /* KPI Grid */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .kpi-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 16px;
+      position: relative;
+      overflow: hidden;
+    }
+    .kpi-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; width: 4px; height: 100%;
+      background: var(--accent-blue);
+    }
+    .kpi-card.green::before { background: var(--accent-green); }
+    .kpi-card.amber::before { background: var(--accent-amber); }
+    .kpi-card.cyan::before { background: var(--accent-cyan); }
+    .kpi-label {
+      font-size: 12px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+    }
+    .kpi-value {
+      font-size: 26px;
+      font-weight: 700;
+      font-family: var(--font-mono);
+      margin-bottom: 4px;
+    }
+    .kpi-trend {
+      font-size: 12px;
+      color: var(--accent-green);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    /* Navigation Tabs */
+    .tab-bar {
+      display: flex;
+      gap: 8px;
+      border-bottom: 1px solid var(--border-color);
+      margin-bottom: 24px;
+    }
+    .tab-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 10px 16px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s;
+    }
+    .tab-btn:hover { color: var(--text-main); }
+    .tab-btn.active {
+      color: var(--accent-cyan);
+      border-bottom-color: var(--accent-cyan);
+    }
+
+    /* Section Panels */
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    .card-title {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* Table Styles */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    th, td {
+      padding: 12px 14px;
+      text-align: left;
+      border-bottom: 1px solid var(--border-color);
+    }
+    th {
+      color: var(--text-muted);
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 11px;
+      letter-spacing: 0.5px;
+      background: rgba(0,0,0,0.15);
+    }
+    tr:hover td { background: var(--bg-card-hover); }
+
+    /* Interactive Simulator */
+    .simulator-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.3fr;
+      gap: 20px;
+    }
+    .sim-controls label {
+      display: block;
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+      margin-top: 12px;
+    }
+    .sim-controls select, .sim-controls input[type="range"], .sim-controls input[type="number"] {
+      width: 100%;
+      padding: 8px 12px;
+      background: var(--bg-dark);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      color: var(--text-main);
+      font-size: 13px;
+    }
+    .slider-val {
+      font-family: var(--font-mono);
+      font-weight: 700;
+      color: var(--accent-cyan);
+      float: right;
+    }
+
+    .sim-results {
+      background: #0f1521;
+      border: 1px solid var(--border-accent);
+      border-radius: 10px;
+      padding: 18px;
+    }
+    .comparison-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      font-size: 13px;
+    }
+    .comparison-row.highlight {
+      font-weight: 700;
+      font-size: 15px;
+      color: var(--accent-green);
+      border-bottom: 2px solid var(--accent-green);
+    }
+
+    /* Badges */
+    .badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      font-family: var(--font-mono);
+    }
+    .badge-ok { background: rgba(16, 185, 129, 0.15); color: var(--accent-green); }
+    .badge-warn { background: rgba(245, 158, 11, 0.15); color: var(--accent-amber); }
+    .badge-alert { background: rgba(239, 68, 68, 0.15); color: var(--accent-red); }
+    .badge-blue { background: rgba(59, 130, 246, 0.15); color: var(--accent-blue); }
+
+    /* Alert Banner */
+    .alert-banner {
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: #fca5a5;
+      font-size: 13px;
+    }
+    .alert-icon { font-size: 18px; }
+
+    /* Progress bar */
+    .progress-bar-bg {
+      background: var(--bg-dark);
+      border-radius: 10px;
+      height: 8px;
+      width: 100%;
+      overflow: hidden;
+      margin-top: 6px;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent-blue), var(--accent-cyan));
+      border-radius: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Header -->
+  <div class="header">
+    <div class="brand">
+      <div class="brand-logo">M</div>
+      <div class="brand-title">
+        <h1>Makota Industrial OS — Панель управления</h1>
+        <p>Industrial Intelligence Core v2.1 • Производство высокоточных деталей ЧПУ</p>
+      </div>
+    </div>
+    <div class="status-badge">
+      <div class="pulse-dot"></div>
+      ИИ-АГЕНТЫ АКТИВНЫ (Read-Only Edge)
+    </div>
+  </div>
+
+  <!-- KPI Pulse -->
+  <div class="kpi-grid">
+    <div class="kpi-card green">
+      <div class="kpi-label">Среднее время расчета КП</div>
+      <div class="kpi-value" id="kpi-quote-time">18 минут</div>
+      <div class="kpi-trend">⚡ Было: 48 часов (-99.3%)</div>
+    </div>
+    <div class="kpi-card cyan">
+      <div class="kpi-label">Экономия на металле (Оптовые пулы)</div>
+      <div class="kpi-value">184 500 ₽</div>
+      <div class="kpi-trend">📦 Скидка трейдеров: 10.4%</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Конверсия выигранных тендеров</div>
+      <div class="kpi-value">41.2%</div>
+      <div class="kpi-trend">📈 +17.2% vs прошлый квартал</div>
+    </div>
+    <div class="kpi-card amber">
+      <div class="kpi-label">OEE Парка станков ЧПУ</div>
+      <div class="kpi-value">84.6%</div>
+      <div class="kpi-trend" style="color: var(--accent-amber)">⏱ Узкое место: Токарный 03</div>
+    </div>
+  </div>
+
+  <!-- Alert Banner from Order Controller (Digital Runner) -->
+  <div class="alert-banner">
+    <span class="alert-icon">⚠️</span>
+    <div>
+      <strong>Алерт Цифрового Бегунка (Order Controller SLA):</strong> 
+      Заказ <code>MKT-086 (Втулки БрАЖ)</code> ожидает подтверждения КП уже 28 часов при лимите 24 ч. Рекомендуется связаться с заказчиком или передать деталь на утверждение технологу.
+    </div>
+  </div>
+
+  <!-- Tabs Navigation -->
+  <div class="tab-bar">
+    <button class="tab-btn active" onclick="openTab('calc')">🎯 Симулятор расчета КП и тендеров</button>
+    <button class="tab-btn" onclick="openTab('pools')">📦 Пулы закупок сырья (-10%)</button>
+    <button class="tab-btn" onclick="openTab('runner')">🏃‍♂️ Цифровой Бегунок (Заказы & SLA)</button>
+    <button class="tab-btn" onclick="openTab('machines')">⚙️ Состояние станков ЧПУ</button>
+  </div>
+
+  <!-- TAB 1: Live Calculator & Competitive Benchmark -->
+  <div id="tab-calc" class="tab-content active">
+    <div class="card">
+      <div class="card-title">
+        <span>Калькулятор себестоимости деталей и анализ тендера (Кейс «РегионСтрой»)</span>
+        <span class="badge badge-blue">ISO 23247 / Cost Engineer v2.1</span>
+      </div>
+
+      <div class="simulator-grid">
+        <!-- Controls -->
+        <div class="sim-controls">
+          <label>Типовая деталь из базы знаний:</label>
+          <select id="sim-part" onchange="loadPreset()">
+            <option value="flange">Фланец переходной D140 (ст. 40Х, 12.5 кг) — Кейс РегионСтрой</option>
+            <option value="washer">Шайба уплотнительная D95 (12Х18Н10Т, 4.2 кг)</option>
+            <option value="bushing">Втулка скольжения 85х55 (БрАЖ9-4, 3.1 кг)</option>
+          </select>
+
+          <label>Размер партии: <span class="slider-val" id="val-batch">150 шт</span></label>
+          <input type="range" id="input-batch" min="10" max="1000" step="10" value="150" oninput="recalc()">
+
+          <label>Скидка на металл из оптового пула: <span class="slider-val" id="val-metal-disc">10%</span></label>
+          <input type="range" id="input-metal-disc" min="0" max="15" step="1" value="10" oninput="recalc()">
+
+          <label>Оптимизация машинного времени (новые режимы/инструмент): <span class="slider-val" id="val-tool-opt">35%</span></label>
+          <input type="range" id="input-tool-opt" min="0" max="50" step="5" value="35" oninput="recalc()">
+
+          <label>Транспортная ставка (АТИ.СУ попутный догруз vs отдельная машина):</label>
+          <select id="sim-logistics" onchange="recalc()">
+            <option value="8500">8 500 ₽ (Проверенный сборный груз / попутчик АТИ.СУ)</option>
+            <option value="17000">17 000 ₽ (Завышенная отдельная машина логиста)</option>
+          </select>
+        </div>
+
+        <!-- Simulation Results -->
+        <div class="sim-results">
+          <h4 style="margin-bottom: 12px; color: var(--accent-cyan); font-size: 14px;">СРАВНИТЕЛЬНАЯ ТАБЛИЦА СЕБЕСТОИМОСТИ И ТЕНДЕРА:</h4>
+          
+          <div class="comparison-row">
+            <span>Старая базовая себестоимость (без оптимизации):</span>
+            <span id="res-base-cost" style="font-family: var(--font-mono); color: var(--accent-red);">100 000 ₽</span>
+          </div>
+          <div class="comparison-row">
+            <span>Старая цена в КП (привела к проигрышу):</span>
+            <span id="res-base-quote" style="font-family: var(--font-mono);">137 000 ₽</span>
+          </div>
+          <div class="comparison-row">
+            <span>Цена победителя конкурента (РегионСтрой):</span>
+            <span style="font-family: var(--font-mono); color: var(--accent-amber); font-weight: 700;">100 580 ₽</span>
+          </div>
+          
+          <div class="comparison-row" style="background: rgba(16, 185, 129, 0.08); padding: 8px 6px;">
+            <span>💡 Новая себестоимость Makota AI:</span>
+            <span id="res-opt-cost" style="font-family: var(--font-mono); font-weight: 700; color: var(--accent-green);">76 800 ₽</span>
+          </div>
+
+          <div class="comparison-row highlight">
+            <span>🏆 РЕКОМЕНДУЕМАЯ ПОБЕДНАЯ ЦЕНА В ТЕНДЕРЕ:</span>
+            <span id="res-win-price" style="font-family: var(--font-mono);">98 400 ₽</span>
+          </div>
+
+          <div class="comparison-row">
+            <span>Разница с ценой РегионСтроя:</span>
+            <span id="res-delta-comp" style="font-family: var(--font-mono); color: var(--accent-green);">-2 180 ₽ (Ниже конкурента!)</span>
+          </div>
+
+          <div class="comparison-row">
+            <span>Чистая прибыль завода с этой сделки:</span>
+            <span id="res-profit" style="font-family: var(--font-mono); color: var(--accent-cyan); font-weight: 700;">+21 600 ₽ (22.0% маржи)</span>
+          </div>
+
+          <div style="margin-top: 14px; font-size: 12px; color: var(--text-muted); line-height: 1.4;">
+            *Вместо проигрыша тендера с нулем выручки завод забирает контракт, загружает станки и фиксирует подтвержденную чистую прибыль.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 2: Procurement Pools -->
+  <div id="tab-pools" class="tab-content">
+    <div class="card">
+      <div class="card-title">
+        <span>Активные пулы оптовых закупок металлопроката (Procurement Engine)</span>
+        <button class="status-badge" style="cursor: pointer; border: none;" onclick="alert('Сформирован сводный запрос трейдерам на 4.5 тонны!')">+ Запросить котировки трейдеров</button>
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Пул ID</th>
+            <th>Марка стали и Профиль</th>
+            <th>Суммарный тоннаж</th>
+            <th>Связанные заказы</th>
+            <th>Скидка за объем</th>
+            <th>Прямая экономия</th>
+            <th>Статус</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>POOL-40X-150</strong></td>
+            <td>Круг 150 мм, Сталь 40Х ГОСТ 4543</td>
+            <td><strong>2.85 тонны</strong></td>
+            <td>MKT-084, MKT-081</td>
+            <td><span class="badge badge-ok">-10.0%</span></td>
+            <td><strong style="color: var(--accent-green)">24 500 ₽</strong></td>
+            <td><span class="badge badge-ok">Готов к оплате</span></td>
+          </tr>
+          <tr>
+            <td><strong>POOL-12X18-70</strong></td>
+            <td>Круг 70 мм, 12Х18Н10Т Нержавейка</td>
+            <td><strong>1.20 тонны</strong></td>
+            <td>MKT-085</td>
+            <td><span class="badge badge-blue">-7.0%</span></td>
+            <td><strong style="color: var(--accent-green)">18 200 ₽</strong></td>
+            <td><span class="badge badge-warn">Сбор предложений</span></td>
+          </tr>
+          <tr>
+            <td><strong>POOL-BRAZH-85</strong></td>
+            <td>Труба 85х55, Бронза БрАЖ9-4</td>
+            <td><strong>450 кг</strong></td>
+            <td>MKT-086</td>
+            <td><span class="badge badge-blue">-4.0%</span></td>
+            <td><strong style="color: var(--accent-green)">9 400 ₽</strong></td>
+            <td><span class="badge badge-warn">Ожидает подтверждения</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- TAB 3: Digital Runner (Orders & SLA) -->
+  <div id="tab-runner" class="tab-content">
+    <div class="card">
+      <div class="card-title">
+        <span>Цифровой Бегунок: Контроль задержек и движения заказов (SLA Tracking)</span>
+        <span class="badge badge-ok">Бесшовная передача без задержек</span>
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Заказ</th>
+            <th>Клиент / Деталь</th>
+            <th>Текущий отдел</th>
+            <th>Время на этапе</th>
+            <th>Норматив SLA</th>
+            <th>Статус SLA</th>
+            <th>Действие</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>MKT-084</strong></td>
+            <td>ПАО «ТатНефтеМаш» / Фланец D140</td>
+            <td>Цех ЧПУ (Токарный 01)</td>
+            <td>14.2 ч</td>
+            <td>72.0 ч</td>
+            <td><span class="badge badge-ok">В норме</span></td>
+            <td>Штрихкод активен</td>
+          </tr>
+          <tr>
+            <td><strong>MKT-085</strong></td>
+            <td>АО «КазаньОргСинтез» / Шайбы</td>
+            <td>Склад (Входной ОТК)</td>
+            <td>4.5 ч</td>
+            <td>12.0 ч</td>
+            <td><span class="badge badge-ok">В норме</span></td>
+            <td>Приемка сертификата</td>
+          </tr>
+          <tr>
+            <td><strong>MKT-086</strong></td>
+            <td>ООО «ПромДеталь» / Втулки БрАЖ</td>
+            <td>Снабжение (Закупка)</td>
+            <td>28.4 ч</td>
+            <td>24.0 ч</td>
+            <td><span class="badge badge-alert">ПРЕВЫШЕН SLA (+4.4ч)</span></td>
+            <td><button style="background: var(--accent-red); color: #fff; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer;" onclick="alert('Алерт отправлен начальнику снабжения!')">Эскалация</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- TAB 4: CNC Machine State -->
+  <div id="tab-machines" class="tab-content">
+    <div class="card">
+      <div class="card-title">
+        <span>Телеметрия станков ЧПУ (Read-Only Edge Gateway по IEC 62443)</span>
+        <span class="badge badge-ok">3 станка онлайн</span>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
+        <div class="card" style="margin-bottom: 0; background: #0f1522;">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+            <strong>Токарный ЧПУ 01 (CNC-LATHE-01)</strong>
+            <span class="badge badge-ok">В РАБОТЕ</span>
+          </div>
+          <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px;">Текущий заказ: MKT-084 (Фланец 40Х)</div>
+          <div style="font-size: 12px;">Нагрузка на шпиндель: <strong>72%</strong></div>
+          <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: 72%;"></div></div>
+          <div style="font-size: 11px; color: var(--text-muted); margin-top: 8px;">OEE: 88.4% • Инструмент: Сандвик пластина CNMG 120408</div>
+        </div>
+
+        <div class="card" style="margin-bottom: 0; background: #0f1522;">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+            <strong>Фрезерный 3D ЧПУ 02 (CNC-MILL-02)</strong>
+            <span class="badge badge-warn">ПЕРЕНАЛАДКА</span>
+          </div>
+          <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px;">Текущий заказ: MKT-085 (Шайбы 12Х18Н10Т)</div>
+          <div style="font-size: 12px;">Установка оснастки: <strong>45%</strong></div>
+          <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: 45%; background: var(--accent-amber);"></div></div>
+          <div style="font-size: 11px; color: var(--text-muted); margin-top: 8px;">OEE: 79.1% • Наладчик пикнул штрихкод в 11:20</div>
+        </div>
+
+        <div class="card" style="margin-bottom: 0; background: #0f1522;">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+            <strong>Токарный ЧПУ 03 (CNC-LATHE-03)</strong>
+            <span class="badge badge-blue">ОЖИДАНИЕ</span>
+          </div>
+          <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px;">Ожидает металл из пула POOL-BRAZH-85</div>
+          <div style="font-size: 12px;">Готовность к запуску: <strong>95%</strong></div>
+          <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: 15%; background: var(--accent-blue);"></div></div>
+          <div style="font-size: 11px; color: var(--text-muted); margin-top: 8px;">OEE: 65.2% • Узкое место цеха (быстрая переналадка)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function openTab(tabName) {
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      event.target.classList.add('active');
+      document.getElementById('tab-' + tabName).classList.add('active');
+    }
+
+    function loadPreset() {
+      const part = document.getElementById('sim-part').value;
+      if (part === 'flange') {
+        document.getElementById('input-batch').value = 150;
+        document.getElementById('input-metal-disc').value = 10;
+        document.getElementById('input-tool-opt').value = 35;
+      } else if (part === 'washer') {
+        document.getElementById('input-batch').value = 300;
+        document.getElementById('input-metal-disc').value = 7;
+        document.getElementById('input-tool-opt').value = 25;
+      } else if (part === 'bushing') {
+        document.getElementById('input-batch').value = 80;
+        document.getElementById('input-metal-disc').value = 4;
+        document.getElementById('input-tool-opt').value = 20;
+      }
+      recalc();
+    }
+
+    function recalc() {
+      const batch = parseInt(document.getElementById('input-batch').value);
+      const metalDisc = parseInt(document.getElementById('input-metal-disc').value) / 100.0;
+      const toolOpt = parseInt(document.getElementById('input-tool-opt').value) / 100.0;
+      const logisticsRate = parseFloat(document.getElementById('sim-logistics').value);
+
+      document.getElementById('val-batch').innerText = batch + ' шт';
+      document.getElementById('val-metal-disc').innerText = Math.round(metalDisc * 100) + '%';
+      document.getElementById('val-tool-opt').innerText = Math.round(toolOpt * 100) + '%';
+
+      // Моделирование калькуляции
+      const baseRawMetal = 45000.0 * (batch / 150.0);
+      const baseMachining = 37000.0 * (batch / 150.0);
+      const baseLogistics = 17000.0;
+      const baseTotalCost = baseRawMetal + baseMachining + baseLogistics; // ~99,000 руб
+
+      // Оптимизированная себестоимость
+      const optRawMetal = baseRawMetal * (1.0 - metalDisc) * 0.90; // пул + меньший отход в стружку
+      const optMachining = baseMachining * (1.0 - toolOpt);
+      const optLogistics = logisticsRate;
+      const optTotalCost = optRawMetal + optMachining + optLogistics;
+
+      // Победная цена (маржа 22%)
+      const winPrice = optTotalCost * 1.22;
+      const profit = winPrice - optTotalCost;
+      const competitorPrice = 100580.0 * (batch / 150.0);
+      const deltaComp = winPrice - competitorPrice;
+
+      document.getElementById('res-base-cost').innerText = Math.round(baseTotalCost).toLocaleString('ru-RU') + ' ₽';
+      document.getElementById('res-base-quote').innerText = Math.round(baseTotalCost * 1.37).toLocaleString('ru-RU') + ' ₽';
+      document.getElementById('res-opt-cost').innerText = Math.round(optTotalCost).toLocaleString('ru-RU') + ' ₽';
+      document.getElementById('res-win-price').innerText = Math.round(winPrice).toLocaleString('ru-RU') + ' ₽';
+      document.getElementById('res-profit').innerText = '+' + Math.round(profit).toLocaleString('ru-RU') + ' ₽ (22.0% маржи)';
+
+      if (deltaComp < 0) {
+        document.getElementById('res-delta-comp').innerText = Math.round(deltaComp).toLocaleString('ru-RU') + ' ₽ (Ниже конкурента!)';
+        document.getElementById('res-delta-comp').style.color = 'var(--accent-green)';
+      } else {
+        document.getElementById('res-delta-comp').innerText = '+' + Math.round(deltaComp).toLocaleString('ru-RU') + ' ₽ (Выше конкурента)';
+        document.getElementById('res-delta-comp').style.color = 'var(--accent-red)';
+      }
+    }
+
+    // Инициализация при загрузке
+    recalc();
+  </script>
+</body>
+</html>

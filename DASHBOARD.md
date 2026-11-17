@@ -1,8 +1,29 @@
 # Makota — Пульт управления Industrial Intelligence 2026
 
-> **Текущий статус**: Реализация Фазы 1 (Инженерный фундамент и спецификации)  
-> **Версия архитектуры**: Industrial Intelligence Core v2.0  
+> **Текущий статус**: Трек A — «Пилот у владельца» (канонический, решение 2026-11-14)
+> **Версия архитектуры**: Industrial Intelligence Core v2.0 (дорожная карта после пилота)
 > **Последнее обновление**: 2026-11-14
+
+---
+
+## 🎯 Трек A: Пилот у владельца (meeting-first)
+
+Ре-анкор на две задачи с встречи 11.11: **оптимизация обеспечения заказа** (себестоимость) и **синхронизация отделов** («цифровой бегунок»). Промышленная ОС v2.0 — дорожная карта после подтверждения экономии на реальных данных.
+
+| Артефакт / шаг | Статус | Ссылка |
+|---|---|---|
+| План пилота (MVP-1 закупки, MVP-2 бегунок) | ✅ Готов | [`docs/plans/2026-11-14-pilot-track-a.md`](docs/plans/2026-11-14-pilot-track-a.md) |
+| Пилотный демо-презент для владельца | ✅ Готов | [`01_Дирекция/Пилотный_демо_презент_Makota_AI.md`](01_Дирекция/Пилотный_демо_презент_Makota_AI.md) |
+| Интерактивный симулятор и дашборд | ✅ Готов | [`reports/makota_interactive_dashboard.html`](reports/makota_interactive_dashboard.html) |
+| Сквозной воркфлоу расчета КП | ✅ Готов | [`specs/workflows/cost_optimization_and_rfp_workflow.md`](specs/workflows/cost_optimization_and_rfp_workflow.md) |
+| Конфиги ИИ-агентов (JSON Schemas) | ✅ Готовы | [`specs/agents/cost_engineer_agent_config.json`](specs/agents/cost_engineer_agent_config.json) |
+| Бенчмарки и разбор кейсов (Paperless/Sandvik) | ✅ Готов | [`docs/BENCHMARKS_AND_CASE_STUDIES.md`](docs/BENCHMARKS_AND_CASE_STUDIES.md) |
+| Письмо владельцу с видением | 🟡 Черновик на проверку | [`reports/owner_email_draft.md`](reports/owner_email_draft.md) |
+| Запрос данных (тендеры, заказы, прайсы) | ✅ Готов к отправке | [`reports/data_request.md`](reports/data_request.md) |
+| Данные от владельца | ⏳ Ожидаются | блокирует MVP-1 и MVP-2 |
+| Визит на производство | ⏳ Не согласован | нужен для обоих MVP |
+| MVP-1: пулинг закупок + разбор тендеров | ⏳ Ждёт данные | [`specs/agents/procurement_pool_spec.md`](specs/agents/procurement_pool_spec.md) |
+| MVP-2: Order Controller на 3–5 заказах | ⏳ Ждёт данные | [`specs/agents/order_controller_spec.md`](specs/agents/order_controller_spec.md), слой данных: vault `02_Продажи_и_Заказы` |
 
 ---
 
@@ -24,6 +45,9 @@
 ---
 
 ## 📊 Финансовые метрики проекта (CFO: Модель внедрения Industrial OS)
+
+> [!CAUTION]
+> **Модельные оценки, не верифицированы.** Все цифры ниже рассчитаны из гипотетических входов `founder/numbers.json` и не подтверждены реальными данными владельца. Цены поставщиков, спрос и чеки требуют проверки. Использовать только как ориентир для обсуждения, не как факт.
 
 | Метрика | Значение | Оценка |
 |---|---|---|

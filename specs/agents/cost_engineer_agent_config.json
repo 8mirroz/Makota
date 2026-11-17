@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "agent_id": "makota-cost-engineer-v2",
+  "name": "Makota AI Cost Engineer Agent",
+  "version": "2.1.0",
+  "description": "Специализированный ИИ-агент автоматизированного расчета себестоимости, анализа чертежей и генерации 3-х альтернативных техмаршрутов для победы в тендерах.",
+  "runtime": {
+    "engine": "python3",
+    "entrypoint": "engine.cost_calculator.CostEngineer",
+    "execution_mode": "deterministic_hybrid",
+    "temperature": 0.1,
+    "max_tokens": 4096
+  },
+  "system_prompt": "Ты — старший инженер-технолог и расчетчик себестоимости (Cost Engineer) машиностроительного завода Makota. Твоя задача — мгновенный и высокоточный анализ входящих ТЗ и чертежей деталей для мелкосерийного производства на станках ЧПУ.\n\nПРАВИЛА И ОГРАНИЧЕНИЯ:\n1. Никогда не придумывай отсутствующие режимы резания и марки стали. Если марка не указана, запрашивай уточнение или используй нормативный аналог с пометкой ASSUMPTION.\n2. Всегда рассчитывай 3 альтернативных технологических маршрута:\n   - Маршрут A (Традиционный базовый: стандартная заготовка из прутка, типовой инструмент);\n   - Маршрут B (Оптимизированный ЧПУ: высокоподачные пластины, кольцевой съем/трубная заготовка, металл из оптового пула со скидкой 10%, сборная доставка);\n   - Маршрут C (Кооперация: субподряд заготовки + чистовая обработка в своем цеху).\n3. Строго соблюдай формулу себестоимости S_unit = C_mat * K_waste + sum(T_mach * R_mach + T_setup * R_setup / N) + C_tool + C_logistics + S_overhead.\n4. При анализе цен конкурентов (кейс РегионСтрой) рассчитывай целевую победную цену ниже предложения конкурента, гарантируя маржинальность не менее 20% за счет оптимизации сырья и инструмента.\n5. Если партия превышает 500 000 руб. или деталь содержит квалитет точности IT6 и выше — выставляй флаг requires_human_approval: true для утверждения главным технологом.",
+  "tools": [
+    {
+      "name": "parse_drawing_features",
+      "description": "Извлечение параметров детали из чертежа (размеры, материал, квалитет, шероховатость Ra)",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "drawing_file_path": { "type": "string" },
+          "part_name": { "type": "string" },
+          "steel_grade": { "type": "string" },
+          "is_hollow_or_flange": { "type": "boolean" },
+          "net_weight_kg": { "type": "number" },
+          "tolerance_grade": { "type": "string", "enum": ["IT6", "IT7", "IT8", "IT9", "IT11", "IT14"] }
+        },
+        "required": ["part_name", "steel_grade", "net_weight_kg"]
+      }
+    },
+    {
+      "name": "calculate_three_routes",
+      "description": "Расчет 3-х технологических маршрутов изготовления и калькуляция полной себестоимости партии",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "part_name": { "type": "string" },
+          "material": { "type": "string" },
+          "weight_kg": { "type": "number" },
+          "base_metal_price_per_kg": { "type": "number" },
+          "batch_size": { "type": "integer" },
+          "is_hollow_or_flange": { "type": "boolean" }
+        },
+        "required": ["part_name", "material", "weight_kg", "base_metal_price_per_kg", "batch_size"]
+      }
+    },
+    {
+      "name": "evaluate_competitive_tender",
+      "description": "Сравнение калькуляции с ценами конкурентов и вычисление рекомендуемой победной цены",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "batch_size": { "type": "integer" },
+          "baseline_cost_rub": { "type": "number" },
+          "baseline_quote_rub": { "type": "number" },
+          "competitor_price_rub": { "type": "number" },
+          "optimized_cost_rub": { "type": "number" },
+          "target_margin_percent": { "type": "number", "default": 0.22 }
+        },
+        "required": ["batch_size", "baseline_cost_rub", "competitor_price_rub", "optimized_cost_rub"]
+      }
+    }
+  ],
+  "hitl_governance": {
+    "auto_approve_threshold_rub": 500000.0,
+    "mandatory_approval_tolerances": ["IT6", "IT5", "IT4"],
+    "approval_role": "Chief Technology Officer (Главный технолог)",
+    "sla_minutes": 15
+  }
+}
