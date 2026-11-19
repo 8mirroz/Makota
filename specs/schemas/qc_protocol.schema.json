@@ -1,0 +1,138 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://makota.ai/schemas/qc-protocol.schema.json",
+  "title": "QualityControlProtocol",
+  "description": "Протокол выходного контроля качества детали (CMM-замер / визуальный контроль ОТК) по стандарту ISO 9001. Используется агентом Quality Intelligence для замкнутого контура точности.",
+  "type": "object",
+  "required": [
+    "protocol_id",
+    "order_id",
+    "inspection_date",
+    "batch_size",
+    "inspected_count",
+    "measurement_results",
+    "overall_verdict"
+  ],
+  "properties": {
+    "protocol_id": {
+      "type": "string",
+      "description": "Уникальный идентификатор протокола ОТК. Формат: QC-YYYY-NNN.",
+      "example": "QC-2026-084"
+    },
+    "order_id": {
+      "type": "string",
+      "description": "Ссылка на номер заказа (order_id из ManufacturingDigitalThreadOrder).",
+      "example": "MKT-2026-084"
+    },
+    "machine_id": {
+      "type": "string",
+      "description": "Идентификатор станка ЧПУ, на котором изготавливались детали.",
+      "example": "CNC-LATHE-01"
+    },
+    "operator_id": {
+      "type": "string",
+      "description": "Табельный номер или имя наладчика / оператора."
+    },
+    "inspector_id": {
+      "type": "string",
+      "description": "Табельный номер контролёра ОТК."
+    },
+    "inspection_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Дата и время проведения замера."
+    },
+    "batch_size": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Общий размер партии деталей."
+    },
+    "inspected_count": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Количество деталей, подвергнутых выборочному контролю."
+    },
+    "cmm_device_id": {
+      "type": "string",
+      "description": "Идентификатор КИМ (координатно-измерительная машина) или инструмента контроля.",
+      "example": "CMM-ZEISS-001"
+    },
+    "measurement_results": {
+      "type": "array",
+      "minItems": 1,
+      "description": "Массив результатов замеров по каждому контролируемому элементу.",
+      "items": {
+        "type": "object",
+        "required": ["feature", "nominal_mm", "measured_mm", "deviation_mm", "in_tolerance"],
+        "properties": {
+          "feature": {
+            "type": "string",
+            "description": "Наименование контролируемого элемента.",
+            "example": "Посадочный диаметр D40h6"
+          },
+          "nominal_mm": {
+            "type": "number",
+            "description": "Номинальный размер по чертежу (мм)."
+          },
+          "upper_deviation_mm": {
+            "type": "number",
+            "description": "Верхнее отклонение по чертежу (мм)."
+          },
+          "lower_deviation_mm": {
+            "type": "number",
+            "description": "Нижнее отклонение по чертежу (мм)."
+          },
+          "measured_mm": {
+            "type": "number",
+            "description": "Фактически измеренный размер (мм)."
+          },
+          "deviation_mm": {
+            "type": "number",
+            "description": "Отклонение факта от номинала (мм). Положительное = в плюс."
+          },
+          "roughness_ra": {
+            "type": "number",
+            "description": "Шероховатость поверхности Ra (мкм), если измерялась."
+          },
+          "in_tolerance": {
+            "type": "boolean",
+            "description": "true = размер в допуске, false = выход за поле допуска (брак по данному параметру)."
+          }
+        }
+      }
+    },
+    "overall_verdict": {
+      "type": "string",
+      "enum": ["годен", "брак", "условно годен"],
+      "description": "Итоговый вердикт ОТК по партии. 'условно годен' — требует согласования с заказчиком или доработки."
+    },
+    "scrap_count": {
+      "type": "integer",
+      "minimum": 0,
+      "default": 0,
+      "description": "Количество деталей, признанных браком."
+    },
+    "scrap_cost_rub": {
+      "type": "number",
+      "minimum": 0,
+      "default": 0,
+      "description": "Стоимость бракованных деталей в рублях (материал + машинное время)."
+    },
+    "root_cause": {
+      "type": "string",
+      "description": "Предполагаемая первопричина брака (износ инструмента, тепловая деформация, ошибка в УП ЧПУ и т.д.)."
+    },
+    "corrective_action": {
+      "type": "string",
+      "description": "Корректирующее действие: переточить инструмент, скорректировать режимы резания, исправить УП ЧПУ."
+    },
+    "comments": {
+      "type": "string",
+      "description": "Дополнительные комментарии контролёра ОТК."
+    },
+    "cpk_index": {
+      "type": "number",
+      "description": "Индекс воспроизводимости процесса Cpk. Норма: >= 1.33 для критических поверхностей."
+    }
+  }
+}

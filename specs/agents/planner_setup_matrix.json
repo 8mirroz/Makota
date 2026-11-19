@@ -1,0 +1,22 @@
+{
+  "version": "1.0",
+  "description": "Матрица времён переналадки станков ЧПУ при смене технологических групп материалов и профилей (Production Planner Agent).",
+  "setup_times_min": {
+    "steel_to_bronze": 30,
+    "steel_to_stainless": 45,
+    "bronze_to_steel": 30,
+    "bronze_to_stainless": 40,
+    "stainless_to_steel": 45,
+    "stainless_to_bronze": 40,
+    "same_material": 10,
+    "diameter_change_large": 20
+  },
+  "material_groups": {
+    "40Х": "steel",
+    "09Г2С": "steel",
+    "45": "steel",
+    "12Х18Н10Т": "stainless",
+    "БрАЖ9-4": "bronze",
+    "Д16Т": "aluminum"
+  }
+}

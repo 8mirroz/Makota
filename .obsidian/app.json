@@ -3,8 +3,13 @@
     ".git/",
     ".agents/",
     ".claude/",
+    ".claude-plugin/",
     "tests/",
     "skills/",
-    ".claude-plugin/"
+    "founder/",
+    "inputs/",
+    "07_Архив_и_Исходники/",
+    "Meet_.md",
+    "FOUNDER_SKILLS.md"
   ]
 }

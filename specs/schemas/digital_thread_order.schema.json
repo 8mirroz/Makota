@@ -25,6 +25,16 @@
       "type": "string",
       "format": "date-time"
     },
+    "stage_entered_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Дата и время входа заказа на текущий этап жизненного цикла (используется OrderSLATracker для расчёта времени нахождения на этапе)."
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Дата и время последнего обновления карточки заказа."
+    },
     "customer_info": {
       "type": "object",
       "required": ["company_name", "contact_person", "segment"],
@@ -128,6 +138,7 @@
     },
     "lifecycle_status": {
       "type": "string",
+      "description": "Статус жизненного цикла заказа. Маппинг систем: Vault (8 видимых статусов в 06_Шаблоны/Шаблон_Заказа.md) → SLA Tracker (7 ключей в engine/order_sla_tracker.py STAGE_ALIASES) → lifecycle_status (12 полных статусов схемы). Итоговый статус: '08_отгружен' (Vault) = '10_отгружен_клиенту' (схема) = '07_dispatch' (SLA). Отмена: '99_отменен' (Vault) = '99_отменен_проигран' (схема).",
       "enum": [
         "01_заявка_получена",
         "02_расчет_себестоимости",

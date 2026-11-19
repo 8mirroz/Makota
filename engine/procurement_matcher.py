@@ -6,7 +6,7 @@ wholesale bulk purchasing lots to capture 7-15% volume discounts.
 
 from dataclasses import dataclass
 from datetime import datetime, timedelta
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 
 @dataclass
@@ -55,13 +55,59 @@ class ProcurementMatcher:
                 return discount
         return 0.0
 
+    @staticmethod
+    def _parse_date(date_str: str) -> Optional[datetime]:
+        if not date_str:
+            return None
+        for fmt in ("%Y-%m-%d", "%Y-%m-%dT%H:%M:%S"):
+            try:
+                return datetime.strptime(date_str.strip(), fmt)
+            except ValueError:
+                continue
+        return None
+
+    @classmethod
+    def _split_by_date_window(
+        cls,
+        req_list: List[RawStockRequirement],
+        max_date_delta_days: int,
+    ) -> List[List[RawStockRequirement]]:
+        """Splits a material group into temporal clusters within max_date_delta_days."""
+        if max_date_delta_days <= 0 or len(req_list) <= 1:
+            return [req_list]
+
+        dated = [(r, cls._parse_date(r.target_delivery_date)) for r in req_list]
+        with_dates = [(r, d) for r, d in dated if d is not None]
+        without_dates = [r for r, d in dated if d is None]
+
+        if not with_dates:
+            return [req_list]
+
+        with_dates.sort(key=lambda item: item[1])
+        clusters: List[List[RawStockRequirement]] = []
+        current_cluster: List[RawStockRequirement] = [with_dates[0][0]]
+        anchor_date: datetime = with_dates[0][1]
+
+        for req, req_date in with_dates[1:]:
+            if (req_date - anchor_date) <= timedelta(days=max_date_delta_days):
+                current_cluster.append(req)
+            else:
+                clusters.append(current_cluster)
+                current_cluster = [req]
+                anchor_date = req_date
+
+        clusters.append(current_cluster)
+        if without_dates:
+            clusters[0].extend(without_dates)
+        return clusters
+
     @classmethod
     def consolidate_requirements(
         cls,
         requirements: List[RawStockRequirement],
         max_date_delta_days: int = 10,
     ) -> List[ProcurementPoolLot]:
-        """Groups requirements by steel grade, profile and compatible dimensions."""
+        """Groups requirements by steel grade, profile, compatible dimensions, and temporal window."""
         grouped: Dict[str, List[RawStockRequirement]] = {}
 
         for req in requirements:
@@ -73,35 +119,39 @@ class ProcurementMatcher:
         lots: List[ProcurementPoolLot] = []
 
         for key, req_list in grouped.items():
-            steel_grade = req_list[0].steel_grade
-            profile_type = req_list[0].profile_type
-            dim = req_list[0].dimension_mm
-            order_ids = [r.order_id for r in req_list]
+            temporal_clusters = cls._split_by_date_window(req_list, max_date_delta_days)
 
-            total_weight = sum(r.weight_kg for r in req_list)
-            base_total_cost = sum(r.estimated_base_price_rub for r in req_list)
+            for idx, cluster in enumerate(temporal_clusters):
+                steel_grade = cluster[0].steel_grade
+                profile_type = cluster[0].profile_type
+                dim = cluster[0].dimension_mm
+                order_ids = [r.order_id for r in cluster]
 
-            discount_pct = cls.get_discount_for_weight(total_weight)
-            discounted_cost = base_total_cost * (1.0 - discount_pct)
-            savings = base_total_cost - discounted_cost
+                total_weight = sum(r.weight_kg for r in cluster)
+                base_total_cost = sum(r.estimated_base_price_rub for r in cluster)
 
-            pool_id = f"POOL-{steel_grade}-{dim.replace('x', '_')}"
-            status = "ГОТОВ К ЗАКУПКЕ" if total_weight >= 1000.0 else "СБОР ОБЪЕМА"
+                discount_pct = cls.get_discount_for_weight(total_weight)
+                discounted_cost = base_total_cost * (1.0 - discount_pct)
+                savings = base_total_cost - discounted_cost
 
-            lots.append(
-                ProcurementPoolLot(
-                    pool_id=pool_id,
-                    steel_grade=steel_grade,
-                    profile_type=profile_type,
-                    dimension_mm=dim,
-                    orders=order_ids,
-                    total_weight_kg=round(total_weight, 2),
-                    base_cost_rub=round(base_total_cost, 2),
-                    discount_percent=round(discount_pct * 100, 1),
-                    discounted_cost_rub=round(discounted_cost, 2),
-                    savings_rub=round(savings, 2),
-                    status=status,
+                base_pool_id = f"POOL-{steel_grade}-{dim.replace('x', '_')}"
+                pool_id = base_pool_id if idx == 0 else f"{base_pool_id}-W{idx + 1}"
+                status = "ГОТОВ К ЗАКУПКЕ" if total_weight >= 1000.0 else "СБОР ОБЪЕМА"
+
+                lots.append(
+                    ProcurementPoolLot(
+                        pool_id=pool_id,
+                        steel_grade=steel_grade,
+                        profile_type=profile_type,
+                        dimension_mm=dim,
+                        orders=order_ids,
+                        total_weight_kg=round(total_weight, 2),
+                        base_cost_rub=round(base_total_cost, 2),
+                        discount_percent=round(discount_pct * 100, 1),
+                        discounted_cost_rub=round(discounted_cost, 2),
+                        savings_rub=round(savings, 2),
+                        status=status,
+                    )
                 )
-            )
 
         return sorted(lots, key=lambda l: l.savings_rub, reverse=True)

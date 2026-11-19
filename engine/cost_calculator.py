@@ -204,3 +204,71 @@ class CostEngineer:
                 else "ТРЕБУЕТСЯ ДОПОЛНИТЕЛЬНАЯ ОПТИМИЗАЦИЯ"
             ),
         }
+
+    @staticmethod
+    def evaluate_make_or_buy(
+        inhouse_route: ManufacturingRoute,
+        subcontract_route: ManufacturingRoute,
+        batch_size: int,
+        available_machine_hours: Optional[float] = None,
+    ) -> Dict[str, any]:
+        """Calculates the Make-or-Buy indifference point (N*) and optimal sourcing strategy.
+
+        Compares fixed (setup + logistics) and variable (material + machining + tooling + subcontract)
+        costs with overhead between an in-house route and a subcontract/cooperation route.
+        """
+        if batch_size <= 0:
+            raise ValueError("Размер партии должен быть больше 0")
+
+        in_res = inhouse_route.calculate_cost(batch_size)
+        sub_res = subcontract_route.calculate_cost(batch_size)
+
+        def _fixed_and_var(route: ManufacturingRoute):
+            mult = 1.0 + route.overhead_percent
+            setup_rub = sum((op.setup_time_min / 60.0) * op.hourly_rate_rub for op in route.operations)
+            fixed = (setup_rub + route.logistics_cost_rub) * mult
+
+            mat_unit = route.raw_material_cost_rub * route.waste_coefficient
+            mach_unit = sum((op.machining_time_min / 60.0) * op.hourly_rate_rub for op in route.operations)
+            tool_unit = sum(op.tooling_wear_rub for op in route.operations)
+            var_unit = (mat_unit + mach_unit + tool_unit + route.subcontract_cost_rub) * mult
+            return fixed, var_unit
+
+        f_in, v_in = _fixed_and_var(inhouse_route)
+        f_sub, v_sub = _fixed_and_var(subcontract_route)
+
+        indifference_n: Optional[float] = None
+        if abs(v_sub - v_in) > 1e-6:
+            n_star = (f_in - f_sub) / (v_sub - v_in)
+            if n_star > 0:
+                indifference_n = round(n_star, 1)
+
+        req_hours = sum(
+            (op.setup_time_min + op.machining_time_min * batch_size) / 60.0
+            for op in inhouse_route.operations
+        )
+        capacity_constrained = (
+            available_machine_hours is not None and req_hours > available_machine_hours
+        )
+
+        in_total = in_res["total_cost_rub"]
+        sub_total = sub_res["total_cost_rub"]
+        savings = round(abs(sub_total - in_total), 2)
+
+        if in_total <= sub_total:
+            recommendation = "HYBRID_SPLIT" if capacity_constrained else "MAKE_IN_HOUSE"
+        else:
+            recommendation = "BUY_SUBCONTRACT"
+
+        return {
+            "batch_size": batch_size,
+            "inhouse_total_cost_rub": in_total,
+            "inhouse_unit_cost_rub": in_res["unit_cost_rub"],
+            "subcontract_total_cost_rub": sub_total,
+            "subcontract_unit_cost_rub": sub_res["unit_cost_rub"],
+            "indifference_batch_size": indifference_n,
+            "required_machine_hours": round(req_hours, 2),
+            "capacity_constrained": capacity_constrained,
+            "recommendation": recommendation,
+            "savings_rub": savings,
+        }

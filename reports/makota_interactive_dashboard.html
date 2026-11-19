@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Makota Industrial OS — Интерактивный пульс управления заводом</title>
+  <title>Makota Industrial OS — Интерактивный пульт управления производством ЧПУ</title>
   <style>
     :root {
       --bg-dark: #0b0f17;
@@ -12,7 +12,7 @@
       --border-color: #233044;
       --border-accent: #334460;
       --text-main: #e2e8f0;
-      --text-muted: #8e9bb0;
+      --text-muted: #94a3b8;
       --accent-blue: #3b82f6;
       --accent-cyan: #06b6d4;
       --accent-green: #10b981;
@@ -30,12 +30,16 @@
       font-family: var(--font-sans);
       line-height: 1.5;
       padding: 24px;
+      max-width: 1440px;
+      margin: 0 auto;
     }
 
     .header {
       display: flex;
       justify-content: space-between;
       align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
       padding-bottom: 20px;
       border-bottom: 1px solid var(--border-color);
       margin-bottom: 24px;
@@ -44,24 +48,25 @@
     .brand {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 14px;
     }
     .brand-logo {
-      width: 40px;
-      height: 40px;
+      width: 44px;
+      height: 44px;
       background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
-      border-radius: 8px;
+      border-radius: 10px;
       display: flex;
       align-items: center;
       justify-content: center;
       font-weight: 800;
       color: #fff;
-      font-size: 20px;
+      font-size: 22px;
+      box-shadow: 0 4px 14px rgba(6, 182, 212, 0.25);
     }
     .brand-title h1 {
-      font-size: 20px;
+      font-size: 21px;
       font-weight: 700;
-      letter-spacing: -0.5px;
+      letter-spacing: -0.4px;
     }
     .brand-title p {
       font-size: 12px;
@@ -72,13 +77,13 @@
     .status-badge {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      background: rgba(16, 185, 129, 0.1);
-      border: 1px solid rgba(16, 185, 129, 0.3);
+      gap: 8px;
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.35);
       color: var(--accent-green);
-      padding: 6px 12px;
+      padding: 7px 14px;
       border-radius: 20px;
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 600;
       font-family: var(--font-mono);
     }
@@ -90,12 +95,11 @@
       box-shadow: 0 0 8px var(--accent-green);
     }
 
-    /* KPI Grid */
     .kpi-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
       gap: 16px;
-      margin-bottom: 24px;
+      margin-bottom: 20px;
     }
     .kpi-card {
       background: var(--bg-card);
@@ -114,15 +118,16 @@
     .kpi-card.green::before { background: var(--accent-green); }
     .kpi-card.amber::before { background: var(--accent-amber); }
     .kpi-card.cyan::before { background: var(--accent-cyan); }
+    .kpi-card.red::before { background: var(--accent-red); }
     .kpi-label {
-      font-size: 12px;
+      font-size: 11px;
       color: var(--text-muted);
       text-transform: uppercase;
       letter-spacing: 0.5px;
       margin-bottom: 6px;
     }
     .kpi-value {
-      font-size: 26px;
+      font-size: 24px;
       font-weight: 700;
       font-family: var(--font-mono);
       margin-bottom: 4px;
@@ -130,15 +135,27 @@
     .kpi-trend {
       font-size: 12px;
       color: var(--accent-green);
-      display: flex;
-      align-items: center;
-      gap: 4px;
     }
 
-    /* Navigation Tabs */
+    .alert-banner {
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.35);
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin-bottom: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      color: #fca5a5;
+      font-size: 13px;
+    }
+
     .tab-bar {
       display: flex;
-      gap: 8px;
+      flex-wrap: wrap;
+      gap: 6px;
       border-bottom: 1px solid var(--border-color);
       margin-bottom: 24px;
     }
@@ -146,20 +163,20 @@
       background: transparent;
       border: none;
       color: var(--text-muted);
-      padding: 10px 16px;
-      font-size: 14px;
+      padding: 11px 16px;
+      font-size: 13.5px;
       font-weight: 600;
       cursor: pointer;
       border-bottom: 2px solid transparent;
-      transition: all 0.2s;
+      transition: all 0.18s;
     }
-    .tab-btn:hover { color: var(--text-main); }
+    .tab-btn:hover { color: var(--text-main); background: rgba(255,255,255,0.02); }
     .tab-btn.active {
       color: var(--accent-cyan);
       border-bottom-color: var(--accent-cyan);
+      background: rgba(6, 182, 212, 0.06);
     }
 
-    /* Section Panels */
     .tab-content { display: none; }
     .tab-content.active { display: block; }
 
@@ -177,9 +194,10 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
     }
 
-    /* Table Styles */
     table {
       width: 100%;
       border-collapse: collapse;
@@ -196,15 +214,17 @@
       text-transform: uppercase;
       font-size: 11px;
       letter-spacing: 0.5px;
-      background: rgba(0,0,0,0.15);
+      background: rgba(0,0,0,0.2);
     }
     tr:hover td { background: var(--bg-card-hover); }
 
-    /* Interactive Simulator */
     .simulator-grid {
       display: grid;
-      grid-template-columns: 1fr 1.3fr;
-      gap: 20px;
+      grid-template-columns: 1fr 1.35fr;
+      gap: 22px;
+    }
+    @media (max-width: 920px) {
+      .simulator-grid { grid-template-columns: 1fr; }
     }
     .sim-controls label {
       display: block;
@@ -215,7 +235,7 @@
     }
     .sim-controls select, .sim-controls input[type="range"], .sim-controls input[type="number"] {
       width: 100%;
-      padding: 8px 12px;
+      padding: 9px 12px;
       background: var(--bg-dark);
       border: 1px solid var(--border-color);
       border-radius: 6px;
@@ -238,18 +258,20 @@
     .comparison-row {
       display: flex;
       justify-content: space-between;
-      padding: 10px 0;
+      align-items: center;
+      padding: 9px 0;
       border-bottom: 1px solid rgba(255,255,255,0.06);
       font-size: 13px;
+      gap: 12px;
     }
     .comparison-row.highlight {
       font-weight: 700;
       font-size: 15px;
       color: var(--accent-green);
       border-bottom: 2px solid var(--accent-green);
+      padding: 12px 0;
     }
 
-    /* Badges */
     .badge {
       display: inline-block;
       padding: 3px 8px;
@@ -260,25 +282,21 @@
     }
     .badge-ok { background: rgba(16, 185, 129, 0.15); color: var(--accent-green); }
     .badge-warn { background: rgba(245, 158, 11, 0.15); color: var(--accent-amber); }
-    .badge-alert { background: rgba(239, 68, 68, 0.15); color: var(--accent-red); }
-    .badge-blue { background: rgba(59, 130, 246, 0.15); color: var(--accent-blue); }
+    .badge-alert { background: rgba(239, 68, 68, 0.18); color: var(--accent-red); }
+    .badge-blue { background: rgba(59, 130, 246, 0.18); color: var(--accent-blue); }
 
-    /* Alert Banner */
-    .alert-banner {
-      background: rgba(239, 68, 68, 0.1);
-      border: 1px solid rgba(239, 68, 68, 0.3);
-      border-radius: 8px;
-      padding: 12px 16px;
-      margin-bottom: 20px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      color: #fca5a5;
-      font-size: 13px;
+    .btn-action {
+      background: var(--accent-blue);
+      color: #fff;
+      border: none;
+      padding: 7px 14px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
     }
-    .alert-icon { font-size: 18px; }
+    .btn-action:hover { opacity: 0.9; }
 
-    /* Progress bar */
     .progress-bar-bg {
       background: var(--bg-dark);
       border-radius: 10px;
@@ -292,6 +310,37 @@
       background: linear-gradient(90deg, var(--accent-blue), var(--accent-cyan));
       border-radius: 10px;
     }
+
+    .guide-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 16px;
+    }
+    .guide-box {
+      background: #0f1522;
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 16px;
+    }
+    .guide-box h4 {
+      color: var(--accent-cyan);
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+    .guide-box p, .guide-box li {
+      font-size: 13px;
+      color: var(--text-main);
+      margin-bottom: 6px;
+    }
+    .guide-box ul { padding-left: 18px; }
+    code {
+      font-family: var(--font-mono);
+      background: rgba(255,255,255,0.07);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 12px;
+      color: #93c5fd;
+    }
   </style>
 </head>
 <body>
@@ -301,358 +350,692 @@
     <div class="brand">
       <div class="brand-logo">M</div>
       <div class="brand-title">
-        <h1>Makota Industrial OS — Панель управления</h1>
-        <p>Industrial Intelligence Core v2.1 • Производство высокоточных деталей ЧПУ</p>
+        <h1>Makota Industrial OS — Пульт управления производством ЧПУ</h1>
+        <p>Демонстрационный стенд для собственника и дирекции • 6 детерминированных модулей (ISO 23247 / ISA-62443)</p>
       </div>
     </div>
     <div class="status-badge">
       <div class="pulse-dot"></div>
-      ИИ-АГЕНТЫ АКТИВНЫ (Read-Only Edge)
+      ЛОКАЛЬНЫЙ КОНТУР АКТИВЕН (Read-Only Edge • 0 внешних облаков)
     </div>
   </div>
 
-  <!-- KPI Pulse -->
+  <!-- KPI Pulse (Synchronized with Obsidian Vault Portfolio) -->
   <div class="kpi-grid">
     <div class="kpi-card green">
-      <div class="kpi-label">Среднее время расчета КП</div>
-      <div class="kpi-value" id="kpi-quote-time">18 минут</div>
-      <div class="kpi-trend">⚡ Было: 48 часов (-99.3%)</div>
+      <div class="kpi-label">Активный портфель заказов (Vault)</div>
+      <div class="kpi-value">1 115 000 ₽</div>
+      <div class="kpi-trend">📦 3 заказа в работе • Валовая маржа: 375 000 ₽ (33.6%)</div>
     </div>
     <div class="kpi-card cyan">
-      <div class="kpi-label">Экономия на металле (Оптовые пулы)</div>
-      <div class="kpi-value">184 500 ₽</div>
-      <div class="kpi-trend">📦 Скидка трейдеров: 10.4%</div>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-label">Конверсия выигранных тендеров</div>
-      <div class="kpi-value">41.2%</div>
-      <div class="kpi-trend">📈 +17.2% vs прошлый квартал</div>
+      <div class="kpi-label">Резерв на заказе «РегионСтрой»</div>
+      <div class="kpi-value">-23 200 ₽ с/с</div>
+      <div class="kpi-trend">🏆 Победное КП: 98 400 ₽ (чистая прибыль +21 600 ₽)</div>
     </div>
     <div class="kpi-card amber">
-      <div class="kpi-label">OEE Парка станков ЧПУ</div>
-      <div class="kpi-value">84.6%</div>
-      <div class="kpi-trend" style="color: var(--accent-amber)">⏱ Узкое место: Токарный 03</div>
+      <div class="kpi-label">Скорость подготовки КП (Cost Engineer)</div>
+      <div class="kpi-value">15–20 мин</div>
+      <div class="kpi-trend">⚡ Вместо 2–3 дней ручного просчёта (3 маршрута сразу)</div>
+    </div>
+    <div class="kpi-card red">
+      <div class="kpi-label">Контроль SLA («Цифровой бегунок»)</div>
+      <div class="kpi-value">1 алерт SLA</div>
+      <div class="kpi-trend" style="color: #fca5a5;">🔴 MKT-2026-085: задержка поставки нержавейки (51 ч / 24 ч)</div>
     </div>
   </div>
 
-  <!-- Alert Banner from Order Controller (Digital Runner) -->
-  <div class="alert-banner">
-    <span class="alert-icon">⚠️</span>
+  <!-- Real Alert Banner from Order Controller -->
+  <div class="alert-banner" id="main-alert-banner">
     <div>
-      <strong>Алерт Цифрового Бегунка (Order Controller SLA):</strong> 
-      Заказ <code>MKT-086 (Втулки БрАЖ)</code> ожидает подтверждения КП уже 28 часов при лимите 24 ч. Рекомендуется связаться с заказчиком или передать деталь на утверждение технологу.
+      <strong>🔴 КРИТИЧЕСКИЙ АЛЕРТ ЦИФРОВОГО БЕГУНКА (Order Controller SLA):</strong>
+      Заказ <code>MKT-2026-085</code> (ООО «ВолгаСпецСтрой» — Шайба сферическая М36, сталь 12Х18Н10Т, 400 шт.) находится на этапе <code>05_ожидание_сырья</code> <strong>51.0 ч</strong> при нормативе снабжения <strong>24.0 ч</strong>. Риск простоя токарного участка!
     </div>
+    <button class="btn-action" style="background: var(--accent-red);" onclick="openTab('runner')">Открыть карточку в Бегунке →</button>
   </div>
 
-  <!-- Tabs Navigation -->
+  <!-- Navigation Tabs (6 Tabs) -->
   <div class="tab-bar">
-    <button class="tab-btn active" onclick="openTab('calc')">🎯 Симулятор расчета КП и тендеров</button>
-    <button class="tab-btn" onclick="openTab('pools')">📦 Пулы закупок сырья (-10%)</button>
-    <button class="tab-btn" onclick="openTab('runner')">🏃‍♂️ Цифровой Бегунок (Заказы & SLA)</button>
-    <button class="tab-btn" onclick="openTab('machines')">⚙️ Состояние станков ЧПУ</button>
+    <button class="tab-btn active" data-tab="calc" onclick="openTab('calc')">🎯 1. Калькулятор КП, Тендеров и Make-or-Buy</button>
+    <button class="tab-btn" data-tab="pools" onclick="openTab('pools')">📦 2. Оптовые пулы металла и Логистика АТИ.СУ</button>
+    <button class="tab-btn" data-tab="runner" onclick="openTab('runner')">🏃‍♂️ 3. Цифровой Бегунок (Заказы и SLA)</button>
+    <button class="tab-btn" data-tab="schedule" onclick="openTab('schedule')">📅 4. Расписание ЧПУ, Инструмент и ОТК</button>
+    <button class="tab-btn" data-tab="machines" onclick="openTab('machines')">⚙️ 5. Станки ЧПУ и Работа в цеху без ПК</button>
+    <button class="tab-btn" data-tab="onboarding" onclick="openTab('onboarding')">📘 6. Инструкция, Настройка и Внедрение</button>
   </div>
 
-  <!-- TAB 1: Live Calculator & Competitive Benchmark -->
+  <!-- TAB 1: Cost Engineer, Competitive Tender & Make-or-Buy -->
   <div id="tab-calc" class="tab-content active">
     <div class="card">
       <div class="card-title">
-        <span>Калькулятор себестоимости деталей и анализ тендера (Кейс «РегионСтрой»)</span>
-        <span class="badge badge-blue">ISO 23247 / Cost Engineer v2.1</span>
+        <span>Симулятор расчёта 3 маршрутов КП, победы в тендере и точки Make-or-Buy (N*)</span>
+        <span class="badge badge-blue">Модуль: engine/cost_calculator.py</span>
       </div>
 
       <div class="simulator-grid">
-        <!-- Controls -->
         <div class="sim-controls">
-          <label>Типовая деталь из базы знаний:</label>
+          <label>Выберите заказ / деталь из рабочей базы завода:</label>
           <select id="sim-part" onchange="loadPreset()">
-            <option value="flange">Фланец переходной D140 (ст. 40Х, 12.5 кг) — Кейс РегионСтрой</option>
-            <option value="washer">Шайба уплотнительная D95 (12Х18Н10Т, 4.2 кг)</option>
-            <option value="bushing">Втулка скольжения 85х55 (БрАЖ9-4, 3.1 кг)</option>
+            <option value="flange">MKT-2026-084: Фланец переходной D140 (ст. 40Х, 12.5 кг) — Кейс «РегионСтрой»</option>
+            <option value="washer">MKT-2026-085: Шайба сферическая М36 (12Х18Н10Т, 2.0 кг)</option>
+            <option value="bushing">MKT-2026-086: Втулка направляющая 85х55 (БрАЖ9-4, 3.1 кг)</option>
           </select>
 
-          <label>Размер партии: <span class="slider-val" id="val-batch">150 шт</span></label>
-          <input type="range" id="input-batch" min="10" max="1000" step="10" value="150" oninput="recalc()">
+          <label>Размер партии (N): <span class="slider-val" id="val-batch">150 шт</span></label>
+          <input type="range" id="input-batch" min="10" max="600" step="10" value="150" oninput="recalc()">
 
           <label>Скидка на металл из оптового пула: <span class="slider-val" id="val-metal-disc">10%</span></label>
-          <input type="range" id="input-metal-disc" min="0" max="15" step="1" value="10" oninput="recalc()">
+          <input type="range" id="input-metal-disc" min="0" max="14" step="1" value="10" oninput="recalc()">
 
-          <label>Оптимизация машинного времени (новые режимы/инструмент): <span class="slider-val" id="val-tool-opt">35%</span></label>
+          <label>Сокращение машинного времени (кольцевой рез + пластины GC4325): <span class="slider-val" id="val-tool-opt">35%</span></label>
           <input type="range" id="input-tool-opt" min="0" max="50" step="5" value="35" oninput="recalc()">
 
-          <label>Транспортная ставка (АТИ.СУ попутный догруз vs отдельная машина):</label>
+          <label>Доступный свободный ресурс станка ЧПУ под этот заказ: <span class="slider-val" id="val-avail-hours">45 ч</span></label>
+          <input type="range" id="input-avail-hours" min="5" max="120" step="5" value="45" oninput="recalc()">
+
+          <label>Схема доставки металла и заготовок (АТИ.СУ):</label>
           <select id="sim-logistics" onchange="recalc()">
-            <option value="8500">8 500 ₽ (Проверенный сборный груз / попутчик АТИ.СУ)</option>
-            <option value="17000">17 000 ₽ (Завышенная отдельная машина логиста)</option>
+            <option value="8500">8 500 ₽ — Попутный догруз АТИ.СУ (проверенный коридор)</option>
+            <option value="17000">17 000 ₽ — Отдельная машина (завышенная ставка логиста)</option>
           </select>
         </div>
 
-        <!-- Simulation Results -->
         <div class="sim-results">
-          <h4 style="margin-bottom: 12px; color: var(--accent-cyan); font-size: 14px;">СРАВНИТЕЛЬНАЯ ТАБЛИЦА СЕБЕСТОИМОСТИ И ТЕНДЕРА:</h4>
-          
+          <h4 style="margin-bottom: 10px; color: var(--accent-cyan); font-size: 13.5px; text-transform: uppercase;">
+            1. Сравнение 3 технологических маршрутов и тендера:
+          </h4>
+
           <div class="comparison-row">
-            <span>Старая базовая себестоимость (без оптимизации):</span>
+            <span>Маршрут A (Старый базовый расчёт: розница + сверление в стружку):</span>
             <span id="res-base-cost" style="font-family: var(--font-mono); color: var(--accent-red);">100 000 ₽</span>
           </div>
           <div class="comparison-row">
-            <span>Старая цена в КП (привела к проигрышу):</span>
+            <span>Старое КП завода (привело к проигрышу торгов):</span>
             <span id="res-base-quote" style="font-family: var(--font-mono);">137 000 ₽</span>
           </div>
           <div class="comparison-row">
-            <span>Цена победителя конкурента (РегионСтрой):</span>
-            <span style="font-family: var(--font-mono); color: var(--accent-amber); font-weight: 700;">100 580 ₽</span>
+            <span>Цена конкурента-победителя («РегионСтрой»):</span>
+            <span id="res-comp-price" style="font-family: var(--font-mono); color: var(--accent-amber); font-weight: 700;">100 580 ₽</span>
           </div>
-          
-          <div class="comparison-row" style="background: rgba(16, 185, 129, 0.08); padding: 8px 6px;">
-            <span>💡 Новая себестоимость Makota AI:</span>
+          <div class="comparison-row" style="background: rgba(16, 185, 129, 0.08); padding: 9px 8px; border-radius: 6px;">
+            <span>💡 Маршрут B (Оптимизированное ЧПУ Makota + пул металла + догруз):</span>
             <span id="res-opt-cost" style="font-family: var(--font-mono); font-weight: 700; color: var(--accent-green);">76 800 ₽</span>
+          </div>
+          <div class="comparison-row">
+            <span>Маршрут C (Внешняя кооперация / субподряд под ключ):</span>
+            <span id="res-sub-cost" style="font-family: var(--font-mono); color: var(--text-muted);">89 400 ₽</span>
           </div>
 
           <div class="comparison-row highlight">
-            <span>🏆 РЕКОМЕНДУЕМАЯ ПОБЕДНАЯ ЦЕНА В ТЕНДЕРЕ:</span>
+            <span>🏆 РЕКОМЕНДУЕМАЯ ПОБЕДНАЯ ЦЕНА В ТЕНДЕРЕ (с маржой 22%):</span>
             <span id="res-win-price" style="font-family: var(--font-mono);">98 400 ₽</span>
           </div>
 
           <div class="comparison-row">
-            <span>Разница с ценой РегионСтроя:</span>
-            <span id="res-delta-comp" style="font-family: var(--font-mono); color: var(--accent-green);">-2 180 ₽ (Ниже конкурента!)</span>
+            <span>Отрыв от цены конкурента:</span>
+            <span id="res-delta-comp" style="font-family: var(--font-mono); color: var(--accent-green);">-2 180 ₽ (Ниже конкурента — победа!)</span>
           </div>
-
           <div class="comparison-row">
-            <span>Чистая прибыль завода с этой сделки:</span>
+            <span>Чистая прибыль завода с этой партии:</span>
             <span id="res-profit" style="font-family: var(--font-mono); color: var(--accent-cyan); font-weight: 700;">+21 600 ₽ (22.0% маржи)</span>
           </div>
 
-          <div style="margin-top: 14px; font-size: 12px; color: var(--text-muted); line-height: 1.4;">
-            *Вместо проигрыша тендера с нулем выручки завод забирает контракт, загружает станки и фиксирует подтвержденную чистую прибыль.
+          <h4 style="margin-top: 16px; margin-bottom: 8px; color: var(--accent-cyan); font-size: 13.5px; text-transform: uppercase;">
+            2. Решение Make-or-Buy (Своё ЧПУ или Субподряд):
+          </h4>
+          <div class="comparison-row">
+            <span>Точка безразличия партии (N*) / Требуемое время ЧПУ:</span>
+            <span id="res-mob-metrics" style="font-family: var(--font-mono);">N* = 28 шт • Нагрузка: 35.7 ч</span>
+          </div>
+          <div class="comparison-row" style="border-bottom: none;">
+            <span>Вердикт диспетчера мощностей:</span>
+            <span id="res-mob-verdict" class="badge badge-ok">MAKE_IN_HOUSE: ТОЧИТЬ В СВОЁМ ЦЕХУ</span>
           </div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- TAB 2: Procurement Pools -->
+  <!-- TAB 2: Procurement Pools & ATI.SU Logistics Validator -->
   <div id="tab-pools" class="tab-content">
     <div class="card">
       <div class="card-title">
-        <span>Активные пулы оптовых закупок металлопроката (Procurement Engine)</span>
-        <button class="status-badge" style="cursor: pointer; border: none;" onclick="alert('Сформирован сводный запрос трейдерам на 4.5 тонны!')">+ Запросить котировки трейдеров</button>
+        <span>Консолидация потребностей в металле в оптовые пулы (скидки 4–14%)</span>
+        <span class="badge badge-blue">Модуль: engine/procurement_matcher.py</span>
       </div>
 
       <table>
         <thead>
           <tr>
-            <th>Пул ID</th>
+            <th>Код пула</th>
             <th>Марка стали и Профиль</th>
-            <th>Суммарный тоннаж</th>
-            <th>Связанные заказы</th>
-            <th>Скидка за объем</th>
+            <th>Объединённые заказы</th>
+            <th>Окно запуска</th>
+            <th>Суммарный вес</th>
+            <th>Оптовая скидка</th>
             <th>Прямая экономия</th>
-            <th>Статус</th>
+            <th>Статус лота</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td><strong>POOL-40X-150</strong></td>
-            <td>Круг 150 мм, Сталь 40Х ГОСТ 4543</td>
-            <td><strong>2.85 тонны</strong></td>
-            <td>MKT-084, MKT-081</td>
+            <td><strong>POOL-40Х-150</strong></td>
+            <td>Круг 150 мм, Сталь 40Х (ГОСТ 4543)</td>
+            <td><code>MKT-2026-084</code> + <code>MKT-2026-081</code></td>
+            <td>20.11 – 22.11 (≤ 10 дн.)</td>
+            <td><strong>2 850 кг</strong></td>
             <td><span class="badge badge-ok">-10.0%</span></td>
-            <td><strong style="color: var(--accent-green)">24 500 ₽</strong></td>
-            <td><span class="badge badge-ok">Готов к оплате</span></td>
+            <td><strong style="color: var(--accent-green)">+31 350 ₽</strong></td>
+            <td><span class="badge badge-ok">ГОТОВ К ЗАКУПКЕ (Уралмет)</span></td>
           </tr>
           <tr>
-            <td><strong>POOL-12X18-70</strong></td>
-            <td>Круг 70 мм, 12Х18Н10Т Нержавейка</td>
-            <td><strong>1.20 тонны</strong></td>
-            <td>MKT-085</td>
-            <td><span class="badge badge-blue">-7.0%</span></td>
-            <td><strong style="color: var(--accent-green)">18 200 ₽</strong></td>
-            <td><span class="badge badge-warn">Сбор предложений</span></td>
-          </tr>
-          <tr>
-            <td><strong>POOL-BRAZH-85</strong></td>
-            <td>Труба 85х55, Бронза БрАЖ9-4</td>
-            <td><strong>450 кг</strong></td>
-            <td>MKT-086</td>
+            <td><strong>POOL-12Х18Н10Т-70</strong></td>
+            <td>Круг 70 мм, 12Х18Н10Т (Нержавейка)</td>
+            <td><code>MKT-2026-085</code></td>
+            <td>до 25.11</td>
+            <td><strong>800 кг</strong></td>
             <td><span class="badge badge-blue">-4.0%</span></td>
-            <td><strong style="color: var(--accent-green)">9 400 ₽</strong></td>
-            <td><span class="badge badge-warn">Ожидает подтверждения</span></td>
+            <td><strong style="color: var(--accent-green)">+5 760 ₽</strong></td>
+            <td><span class="badge badge-warn">СБОР ОБЪЕМА (до 1 т = -7%)</span></td>
+          </tr>
+          <tr>
+            <td><strong>POOL-БрАЖ9-4-85_55</strong></td>
+            <td>Труба 85×55 мм, Бронза БрАЖ9-4</td>
+            <td><code>MKT-2026-086</code></td>
+            <td>до 28.11</td>
+            <td><strong>248 кг</strong></td>
+            <td><span class="badge badge-blue">Розница / Кооп.</span></td>
+            <td><strong style="color: var(--text-muted)">Запрос КП Уралмет</strong></td>
+            <td><span class="badge badge-blue">ОЖИДАЕТ ПОДТВЕРЖДЕНИЯ КП</span></td>
           </tr>
         </tbody>
       </table>
     </div>
+
+    <div class="card">
+      <div class="card-title">
+        <span>Интерактивный аудитор транспортных ставок по коридорам АТИ.СУ</span>
+        <span class="badge badge-blue">Модуль: engine/logistics_validator.py</span>
+      </div>
+      <div class="simulator-grid">
+        <div class="sim-controls">
+          <label>Маршрут доставки металлопроката:</label>
+          <select id="log-route" onchange="recalcLogistics()">
+            <option value="CHELYABINSK_ALMETYEVSK">Челябинск — Альметьевск (670 км)</option>
+            <option value="KAZAN_ALMETYEVSK">Казань — Альметьевск (260 км)</option>
+            <option value="CHELNY_ALMETYEVSK">Набережные Челны — Альметьевск (110 км)</option>
+          </select>
+
+          <label>Вес партии металла (кг): <span class="slider-val" id="val-cargo-weight">1 200 кг</span></label>
+          <input type="range" id="log-weight" min="200" max="5000" step="100" value="1200" oninput="recalcLogistics()">
+
+          <label>Ставка, запрошенная логистом / перевозчиком (₽): <span class="slider-val" id="val-req-rate">17 000 ₽</span></label>
+          <input type="range" id="log-rate" min="2000" max="30000" step="500" value="17000" oninput="recalcLogistics()">
+        </div>
+
+        <div class="sim-results">
+          <h4 style="margin-bottom: 12px; color: var(--accent-cyan); font-size: 13.5px;">РЕЗУЛЬТАТ ПРОВЕРКИ ТРАНСПОРТНОЙ СТАВКИ:</h4>
+          <div class="comparison-row">
+            <span>Рекомендуемый формат перевозки по тоннажу:</span>
+            <span id="log-mode" style="font-family: var(--font-mono);">Попутный догруз (LTL, вес ≤ 2 500 кг)</span>
+          </div>
+          <div class="comparison-row">
+            <span>Рыночный эталон АТИ.СУ для данного маршрута:</span>
+            <span id="log-bench" style="font-family: var(--font-mono); color: var(--accent-green); font-weight: 700;">8 500 ₽</span>
+          </div>
+          <div class="comparison-row">
+            <span>Запрошенная ставка логиста:</span>
+            <span id="log-req-out" style="font-family: var(--font-mono);">17 000 ₽</span>
+          </div>
+          <div class="comparison-row highlight">
+            <span>Потенциал прямой экономии на рейсе:</span>
+            <span id="log-savings" style="font-family: var(--font-mono);">+8 500 ₽ (переплата +100.0%)</span>
+          </div>
+          <div id="log-verdict-box" style="margin-top: 12px; font-size: 13px; color: #fca5a5;">
+            ВНИМАНИЕ: Ставка завышена. Рекомендуется оформить сборный попутный догруз через АТИ.СУ.
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <!-- TAB 3: Digital Runner (Orders & SLA) -->
+  <!-- TAB 3: Digital Runner (Order Controller SLA) -->
   <div id="tab-runner" class="tab-content">
     <div class="card">
       <div class="card-title">
-        <span>Цифровой Бегунок: Контроль задержек и движения заказов (SLA Tracking)</span>
-        <span class="badge badge-ok">Бесшовная передача без задержек</span>
+        <span>«Цифровой бегунок» — Мониторинг прохождения заказов по отделам (SLA Tracker)</span>
+        <span class="badge badge-blue">Модуль: engine/order_sla_tracker.py • Контракт: docs/contracts/status_contract.md</span>
       </div>
 
       <table>
         <thead>
           <tr>
-            <th>Заказ</th>
-            <th>Клиент / Деталь</th>
-            <th>Текущий отдел</th>
-            <th>Время на этапе</th>
-            <th>Норматив SLA</th>
+            <th>Заказ ID</th>
+            <th>Заказчик</th>
+            <th>Деталь и Материал</th>
+            <th>Текущий статус (Vault)</th>
+            <th>Ответственный отдел</th>
+            <th>Факт / Лимит SLA</th>
             <th>Статус SLA</th>
             <th>Действие</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td><strong>MKT-084</strong></td>
-            <td>ПАО «ТатНефтеМаш» / Фланец D140</td>
-            <td>Цех ЧПУ (Токарный 01)</td>
-            <td>14.2 ч</td>
-            <td>72.0 ч</td>
-            <td><span class="badge badge-ok">В норме</span></td>
-            <td>Штрихкод активен</td>
+            <td><strong>MKT-2026-084</strong></td>
+            <td>ПАО «ТатНефтеМаш»</td>
+            <td>Фланец переходной D140 (ст. 40Х, 150 шт.)</td>
+            <td><code>06_в_производстве</code></td>
+            <td>Цех мехобработки (CNC-LATHE-01)</td>
+            <td><strong>27.0 ч</strong> / 72.0 ч</td>
+            <td><span class="badge badge-ok">OK (В графике)</span></td>
+            <td>Обработка партии 80..150</td>
+          </tr>
+          <tr style="background: rgba(239, 68, 68, 0.07);">
+            <td><strong>MKT-2026-085</strong></td>
+            <td>ООО «ВолгаСпецСтрой»</td>
+            <td>Шайба сферическая М36 (12Х18Н10Т, 400 шт.)</td>
+            <td><code>05_ожидание_сырья</code></td>
+            <td>Отдел снабжения</td>
+            <td><strong style="color: var(--accent-red);">51.0 ч</strong> / 24.0 ч</td>
+            <td><span class="badge badge-alert">CRITICAL (Срыв SLA 2.1x)</span></td>
+            <td><button class="btn-action" style="background: var(--accent-red);" onclick="alert('Эскалация отправлена руководителю снабжения и на пульт директора: Заказ MKT-2026-085 ожидает поставку круга 70 мм 12Х18Н10Т 51 час при нормативе 24 ч. Рекомендуется переключение на склад ООО «Уралмет»!')">Эскалировать директору</button></td>
           </tr>
           <tr>
-            <td><strong>MKT-085</strong></td>
-            <td>АО «КазаньОргСинтез» / Шайбы</td>
-            <td>Склад (Входной ОТК)</td>
-            <td>4.5 ч</td>
-            <td>12.0 ч</td>
-            <td><span class="badge badge-ok">В норме</span></td>
-            <td>Приемка сертификата</td>
+            <td><strong>MKT-2026-086</strong></td>
+            <td>АО «Казанский Агрегатный Завод»</td>
+            <td>Втулка направляющая (БрАЖ9-4, 80 шт.)</td>
+            <td><code>02_расчет_КП</code></td>
+            <td>Отдел продаж & Cost Engineer</td>
+            <td><strong>2.5 ч</strong> / 4.0 ч</td>
+            <td><span class="badge badge-ok">OK (В норме)</span></td>
+            <td>Утверждение техкарты TC-2026-086</td>
           </tr>
           <tr>
-            <td><strong>MKT-086</strong></td>
-            <td>ООО «ПромДеталь» / Втулки БрАЖ</td>
-            <td>Снабжение (Закупка)</td>
-            <td>28.4 ч</td>
-            <td>24.0 ч</td>
-            <td><span class="badge badge-alert">ПРЕВЫШЕН SLA (+4.4ч)</span></td>
-            <td><button style="background: var(--accent-red); color: #fff; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer;" onclick="alert('Алерт отправлен начальнику снабжения!')">Эскалация</button></td>
+            <td><strong>MKT-2026-079</strong></td>
+            <td>АО «Татмашсервис»</td>
+            <td>Вал-шестерня m=4 z=18 (ст. 40Х, 120 шт.)</td>
+            <td><code>09_закрыт_прибыль_зафиксирована</code></td>
+            <td>Бухгалтерия / Архив</td>
+            <td>Закрыт (План/Факт: +13 500 ₽)</td>
+            <td><span class="badge badge-blue">ЗАКРЫТ (Архив)</span></td>
+            <td>Маржа 36.2% (121 500 ₽)</td>
           </tr>
         </tbody>
       </table>
     </div>
   </div>
 
-  <!-- TAB 4: CNC Machine State -->
+  <!-- TAB 4: Dynamic CNC Schedule (EDD) & Tool Wear / QC -->
+  <div id="tab-schedule" class="tab-content">
+    <div class="card">
+      <div class="card-title">
+        <span>Алгоритмическое расписание загрузки ЧПУ (правило EDD + матрица переналадок)</span>
+        <span class="badge badge-blue">Модуль: engine/production_planner.py • specs/agents/planner_setup_matrix.json</span>
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Станок ЧПУ</th>
+            <th>Очередь / Заказ</th>
+            <th>Деталь</th>
+            <th>Материал</th>
+            <th>Партия</th>
+            <th>Начало слота</th>
+            <th>Завершение</th>
+            <th>Переналадка</th>
+            <th>Дедлайн клиента</th>
+            <th>Риск срока</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>CNC-LATHE-01</code></td>
+            <td><strong>#1 • MKT-2026-084</strong></td>
+            <td>Фланец переходной D140</td>
+            <td>Сталь 40Х (группа P)</td>
+            <td>150 шт</td>
+            <td>18.11 08:00</td>
+            <td>19.11 14:00</td>
+            <td>— (текущая наладка)</td>
+            <td>2026-11-20</td>
+            <td><span class="badge badge-ok">✅ В срок (запас 34 ч)</span></td>
+          </tr>
+          <tr>
+            <td><code>CNC-LATHE-01</code></td>
+            <td><strong>#2 • MKT-2026-085</strong></td>
+            <td>Шайба сферическая М36</td>
+            <td>12Х18Н10Т (группа M)</td>
+            <td>400 шт</td>
+            <td>19.11 14:45</td>
+            <td>22.11 22:45</td>
+            <td><span class="badge badge-warn">45 мин (Сталь → Нерж.)</span></td>
+            <td>2026-11-25</td>
+            <td><span class="badge badge-ok">✅ В срок (после прихода сырья)</span></td>
+          </tr>
+          <tr>
+            <td><code>CNC-LATHE-01</code></td>
+            <td><strong>#3 • MKT-2026-086</strong></td>
+            <td>Втулка направляющая D40</td>
+            <td>БрАЖ9-4 (группа N)</td>
+            <td>80 шт</td>
+            <td>22.11 23:25</td>
+            <td>23.11 15:25</td>
+            <td><span class="badge badge-warn">40 мин (Нерж. → Бронза)</span></td>
+            <td>2026-11-28</td>
+            <td><span class="badge badge-ok">✅ В срок (запас 4.5 сут.)</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="card-title">
+        <span>Контроль стойкости твердосплавных пластин и точности ОТК (Протокол QC-2026-084, Cpk = 1.85)</span>
+        <span class="badge badge-blue">Модуль: engine/quality_and_tooling.py</span>
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Позиция револьвера</th>
+            <th>Назначение инструмента</th>
+            <th>Пластина (сплав)</th>
+            <th>Норма стойкости</th>
+            <th>Факт наработки</th>
+            <th>Остаток ресурса</th>
+            <th>Статус износа</th>
+            <th>Предписание наладчику</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>T01</strong></td>
+            <td>Проходной черновой PCLNR 2525</td>
+            <td><code>CNMG 120408-PM (GC4325)</code></td>
+            <td>30.0 мин</td>
+            <td>18.0 мин (60%)</td>
+            <td>12.0 мин</td>
+            <td><span class="badge badge-ok">OK</span></td>
+            <td>Работа в штатном режиме</td>
+          </tr>
+          <tr>
+            <td><strong>T03</strong></td>
+            <td>Чистовой контурный PDJNR 2525</td>
+            <td><code>DNMG 150604-PF (GC4315)</code></td>
+            <td>25.0 мин</td>
+            <td>22.0 мин (88%)</td>
+            <td>3.0 мин</td>
+            <td><span class="badge badge-warn">WARNING (≥80%)</span></td>
+            <td>Подготовить сменную кромку после текущей подпартии</td>
+          </tr>
+          <tr style="background: rgba(239, 68, 68, 0.07);">
+            <td><strong>T11</strong></td>
+            <td>Расточной чистовой A25S-SCLCR (Ø80H7)</td>
+            <td><code>CCMT 09T304-PF (GC4315)</code></td>
+            <td>25.0 мин</td>
+            <td><strong>24.0 мин (96%)</strong></td>
+            <td><strong>1.0 мин</strong></td>
+            <td><span class="badge badge-alert">CRITICAL (≥95%)</span></td>
+            <td><strong>Немедленно повернуть кромку перед деталью №81!</strong></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- TAB 5: CNC Machines & Shop-Floor Barcode Workflow -->
   <div id="tab-machines" class="tab-content">
     <div class="card">
       <div class="card-title">
-        <span>Телеметрия станков ЧПУ (Read-Only Edge Gateway по IEC 62443)</span>
-        <span class="badge badge-ok">3 станка онлайн</span>
+        <span>Парк станков ЧПУ в хранилище (Read-Only мониторинг по стандарту ISA/IEC 62443)</span>
+        <span class="badge badge-ok">Безопасный съём телеметрии без доступа к G-коду</span>
       </div>
 
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 18px;">
         <div class="card" style="margin-bottom: 0; background: #0f1522;">
-          <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-            <strong>Токарный ЧПУ 01 (CNC-LATHE-01)</strong>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+            <strong>CNC-LATHE-01 • Doosan Puma GT2600</strong>
             <span class="badge badge-ok">В РАБОТЕ</span>
           </div>
-          <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px;">Текущий заказ: MKT-084 (Фланец 40Х)</div>
-          <div style="font-size: 12px;">Нагрузка на шпиндель: <strong>72%</strong></div>
-          <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: 72%;"></div></div>
-          <div style="font-size: 11px; color: var(--text-muted); margin-top: 8px;">OEE: 88.4% • Инструмент: Сандвик пластина CNMG 120408</div>
+          <div style="font-size: 13px; color: var(--text-muted); margin-bottom: 8px;">
+            Стойка: <code>Fanuc 0i-TF Plus</code> • Текущий заказ: <code>MKT-2026-084 (Фланец D140, 40Х)</code>
+          </div>
+          <div style="font-size: 13px;">Нагрузка на шпиндель: <strong>62%</strong> (18.5 кВт, макс. Ø410×650 мм)</div>
+          <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: 62%;"></div></div>
+          <div style="font-size: 12px; color: var(--text-muted); margin-top: 10px;">
+            OEE недели: <strong>78.4%</strong> • Револьвер: 12 позиций • Шлюз: <code>192.168.10.15 (OPC UA Read-Only)</code>
+          </div>
         </div>
 
         <div class="card" style="margin-bottom: 0; background: #0f1522;">
-          <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-            <strong>Фрезерный 3D ЧПУ 02 (CNC-MILL-02)</strong>
-            <span class="badge badge-warn">ПЕРЕНАЛАДКА</span>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+            <strong>VMC-5AXIS-02 • Hermle C400 (5-осевой)</strong>
+            <span class="badge badge-warn">ГОТОВ К ЗАПУСКУ (Барабан ТОС)</span>
           </div>
-          <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px;">Текущий заказ: MKT-085 (Шайбы 12Х18Н10Т)</div>
-          <div style="font-size: 12px;">Установка оснастки: <strong>45%</strong></div>
-          <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: 45%; background: var(--accent-amber);"></div></div>
-          <div style="font-size: 11px; color: var(--text-muted); margin-top: 8px;">OEE: 79.1% • Наладчик пикнул штрихкод в 11:20</div>
+          <div style="font-size: 13px; color: var(--text-muted); margin-bottom: 8px;">
+            Стойка: <code>Heidenhain TNC 640</code> • Статус по ТОС: <strong>Критическое узкое место завода (Drum)</strong>
+          </div>
+          <div style="font-size: 13px;">Коэффициент OEE: <strong>84.1%</strong> (Магазин: 38 инструментов, 18 000 об/мин)</div>
+          <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: 84%; background: var(--accent-amber);"></div></div>
+          <div style="font-size: 12px; color: var(--text-muted); margin-top: 10px;">
+            Буфер перед станком: <strong>3 сменных задания (28 часов)</strong> • Шлюз: <code>192.168.10.22 (Heidenhain DNC)</code>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">
+        <span>Как система работает в цеху, где у рабочих нет компьютеров</span>
+        <span class="badge badge-blue">Нулевое сопротивление персонала</span>
+      </div>
+      <div class="guide-grid">
+        <div class="guide-box">
+          <h4>1. Привычный бумажный маршрутный лист</h4>
+          <p>Станочнику не нужно учиться работать с компьютером или нажимать кнопки на планшете руками в СОЖ. Мастер распечатывает обычный бумажный наряд со штрихкодом заказа в углу.</p>
+        </div>
+        <div class="guide-box">
+          <h4>2. Два движения промышленным сканером</h4>
+          <p>У станка висит пылевлагозащищённый сканер штрихкодов. Взял партию в работу — один раз «пикнул» лист. Сдал детали в ОТК — второй раз «пикнул». Статус заказа в пульте директора обновляется мгновенно.</p>
+        </div>
+        <div class="guide-box">
+          <h4>3. Безопасность ЧПУ и коммерческой тайны</h4>
+          <p>ИИ никогда не пишет команды в стойку ЧПУ (никакого риска поломки шпинделя). Все чертежи, прайсы и калькуляции хранятся локально на заводе без облаков.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 6: Onboarding, Customization & Ordering Integration -->
+  <div id="tab-onboarding" class="tab-content">
+    <div class="card">
+      <div class="card-title">
+        <span>Как пользоваться этим репозиторием, наполнять его данными и заказать внедрение под ваш завод</span>
+        <span class="badge badge-ok">Полные руководства: PRESENTATION.md и ONBOARDING.md</span>
+      </div>
+
+      <div class="guide-grid">
+        <div class="guide-box">
+          <h4>📂 1. Что находится внутри репозитория</h4>
+          <ul>
+            <li><code>PRESENTATION.md</code> — презентация проекта простым деловым языком для собственника.</li>
+            <li><code>ONBOARDING.md</code> — подробная инструкция: как пользоваться всеми функциями и менять настройки.</li>
+            <li><code>00_Главная.md</code> и папки <code>01..06</code> — готовая база завода для бесплатной программы <strong>Obsidian</strong>.</li>
+            <li><code>engine/</code> — 7 модулей расчётного ядра на чистом Python (0 внешних зависимостей).</li>
+            <li><code>reports/pilot_report.md</code> — пример ежедневного сводного отчёта для директора.</li>
+          </ul>
         </div>
 
-        <div class="card" style="margin-bottom: 0; background: #0f1522;">
-          <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-            <strong>Токарный ЧПУ 03 (CNC-LATHE-03)</strong>
-            <span class="badge badge-blue">ОЖИДАНИЕ</span>
-          </div>
-          <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px;">Ожидает металл из пула POOL-BRAZH-85</div>
-          <div style="font-size: 12px;">Готовность к запуску: <strong>95%</strong></div>
-          <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: 15%; background: var(--accent-blue);"></div></div>
-          <div style="font-size: 11px; color: var(--text-muted); margin-top: 8px;">OEE: 65.2% • Узкое место цеха (быстрая переналадка)</div>
+        <div class="guide-box">
+          <h4>⚙️ 2. Как добавить свои заказы и ставки</h4>
+          <ul>
+            <li><strong>Новый заказ</strong>: скопируйте шаблон <code>06_Шаблоны/Шаблон_Заказа.md</code> в папку <code>02_Продажи_и_Заказы/Активные_заказы/</code>.</li>
+            <li><strong>Свои ставки станко-часа</strong>: настраиваются в <code>engine/cost_calculator.py</code>.</li>
+            <li><strong>Нормативы времени отделов (SLA)</strong>: в <code>engine/order_sla_tracker.py</code> (словарь <code>DEFAULT_SLAS</code>).</li>
+            <li><strong>Скидки на металл и маршруты доставки</strong>: в <code>engine/procurement_matcher.py</code> и <code>engine/logistics_validator.py</code>.</li>
+          </ul>
+        </div>
+
+        <div class="guide-box">
+          <h4>🚀 3. Быстрый запуск расчётов из терминала</h4>
+          <p>Откройте терминал в папке проекта и запустите:</p>
+          <p><code>python3 engine/demo_showcase.py</code><br><span style="color: var(--text-muted); font-size: 12px;">— демонстрация всех 6 модулей на экране за 1 секунду.</span></p>
+          <p><code>python3 engine/vault_runner.py --vault . --report reports/pilot_report.md</code><br><span style="color: var(--text-muted); font-size: 12px;">— автоматический пересчёт всех заказов, пулов, SLA и расписания ЧПУ.</span></p>
+        </div>
+
+        <div class="guide-box" style="border-color: var(--accent-cyan);">
+          <h4>🤝 4. Заказать настройку и интеграцию под ваш бизнес</h4>
+          <p>Мы адаптируем и внедряем систему «под ключ» короткими этапами:</p>
+          <ul>
+            <li><strong>Шаг 0 (48 часов)</strong>: бесплатный расчёт экономии на ваших 5–10 исторических заказах и выгрузке тендеров.</li>
+            <li><strong>Этап 1 (Недели 1–4)</strong>: настройка под ваши марки сталей, поставщиков и отделы; запуск «Цифрового бегунка» и Telegram-алертов.</li>
+            <li><strong>Этап 2–3 (Недели 5–12)</strong>: интеграция с вашей 1С, настройка калькулятора КП под ваши техкарты, штрихкоды в цеху и обучение команды.</li>
+          </ul>
         </div>
       </div>
     </div>
   </div>
 
   <script>
+    const PART_PRESETS = {
+      flange:  { batch: 150, metalDisc: 10, toolOpt: 35, availHours: 45, baseRawUnit: 300, baseMachUnit: 246.67, compUnit: 670.53, machMinOpt: 14.0, setupMin: 40, subUnit: 560 },
+      washer:  { batch: 400, metalDisc: 7,  toolOpt: 25, availHours: 50, baseRawUnit: 420, baseMachUnit: 310.00, compUnit: 820.00, machMinOpt: 6.5,  setupMin: 35, subUnit: 710 },
+      bushing: { batch: 80,  metalDisc: 4,  toolOpt: 20, availHours: 25, baseRawUnit: 980, baseMachUnit: 640.00, compUnit: 1850.0, machMinOpt: 6.2,  setupMin: 35, subUnit: 1590 }
+    };
+
+    const LOG_BENCHMARKS = {
+      CHELYABINSK_ALMETYEVSK: { name: "Челябинск — Альметьевск (670 км)", dedicated: 19500, shared: 8500 },
+      KAZAN_ALMETYEVSK:       { name: "Казань — Альметьевск (260 км)", dedicated: 9500,  shared: 4200 },
+      CHELNY_ALMETYEVSK:      { name: "Набережные Челны — Альметьевск (110 км)", dedicated: 5000,  shared: 2200 }
+    };
+
     function openTab(tabName) {
-      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-      event.target.classList.add('active');
-      document.getElementById('tab-' + tabName).classList.add('active');
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-tab') === tabName);
+      });
+      document.querySelectorAll('.tab-content').forEach(c => {
+        c.classList.toggle('active', c.id === 'tab-' + tabName);
+      });
     }
 
     function loadPreset() {
-      const part = document.getElementById('sim-part').value;
-      if (part === 'flange') {
-        document.getElementById('input-batch').value = 150;
-        document.getElementById('input-metal-disc').value = 10;
-        document.getElementById('input-tool-opt').value = 35;
-      } else if (part === 'washer') {
-        document.getElementById('input-batch').value = 300;
-        document.getElementById('input-metal-disc').value = 7;
-        document.getElementById('input-tool-opt').value = 25;
-      } else if (part === 'bushing') {
-        document.getElementById('input-batch').value = 80;
-        document.getElementById('input-metal-disc').value = 4;
-        document.getElementById('input-tool-opt').value = 20;
-      }
+      const partKey = document.getElementById('sim-part').value;
+      const p = PART_PRESETS[partKey];
+      document.getElementById('input-batch').value = p.batch;
+      document.getElementById('input-metal-disc').value = p.metalDisc;
+      document.getElementById('input-tool-opt').value = p.toolOpt;
+      document.getElementById('input-avail-hours').value = p.availHours;
       recalc();
     }
 
     function recalc() {
-      const batch = parseInt(document.getElementById('input-batch').value);
-      const metalDisc = parseInt(document.getElementById('input-metal-disc').value) / 100.0;
-      const toolOpt = parseInt(document.getElementById('input-tool-opt').value) / 100.0;
+      const partKey = document.getElementById('sim-part').value;
+      const p = PART_PRESETS[partKey];
+      const batch = parseInt(document.getElementById('input-batch').value, 10);
+      const metalDisc = parseInt(document.getElementById('input-metal-disc').value, 10) / 100.0;
+      const toolOpt = parseInt(document.getElementById('input-tool-opt').value, 10) / 100.0;
+      const availHours = parseFloat(document.getElementById('input-avail-hours').value);
       const logisticsRate = parseFloat(document.getElementById('sim-logistics').value);
 
       document.getElementById('val-batch').innerText = batch + ' шт';
       document.getElementById('val-metal-disc').innerText = Math.round(metalDisc * 100) + '%';
       document.getElementById('val-tool-opt').innerText = Math.round(toolOpt * 100) + '%';
+      document.getElementById('val-avail-hours').innerText = availHours + ' ч';
 
-      // Моделирование калькуляции
-      const baseRawMetal = 45000.0 * (batch / 150.0);
-      const baseMachining = 37000.0 * (batch / 150.0);
+      const baseRaw = p.baseRawUnit * batch;
+      const baseMach = p.baseMachUnit * batch;
       const baseLogistics = 17000.0;
-      const baseTotalCost = baseRawMetal + baseMachining + baseLogistics; // ~99,000 руб
+      const baseTotalCost = baseRaw + baseMach + baseLogistics;
+      const baseQuote = baseTotalCost * 1.37;
 
-      // Оптимизированная себестоимость
-      const optRawMetal = baseRawMetal * (1.0 - metalDisc) * 0.90; // пул + меньший отход в стружку
-      const optMachining = baseMachining * (1.0 - toolOpt);
-      const optLogistics = logisticsRate;
-      const optTotalCost = optRawMetal + optMachining + optLogistics;
+      const optRaw = baseRaw * (1.0 - metalDisc) * 0.90;
+      const optMach = baseMach * (1.0 - toolOpt);
+      const optTotalCost = optRaw + optMach + logisticsRate;
 
-      // Победная цена (маржа 22%)
+      const subTotalCost = (p.subUnit * batch) + 6000.0;
       const winPrice = optTotalCost * 1.22;
       const profit = winPrice - optTotalCost;
-      const competitorPrice = 100580.0 * (batch / 150.0);
-      const deltaComp = winPrice - competitorPrice;
+      const compPrice = p.compUnit * batch;
+      const deltaComp = winPrice - compPrice;
+
+      // Make-or-Buy indifference N* and machine hours
+      const reqHours = (p.setupMin + p.machMinOpt * batch) / 60.0;
+      const fixedDiff = Math.max(2500.0, logisticsRate - 3000.0 + 4500.0);
+      const unitInhouse = (optRaw + optMach) / batch;
+      const unitDiff = Math.max(40.0, p.subUnit - unitInhouse);
+      const nStar = Math.round(fixedDiff / unitDiff);
 
       document.getElementById('res-base-cost').innerText = Math.round(baseTotalCost).toLocaleString('ru-RU') + ' ₽';
-      document.getElementById('res-base-quote').innerText = Math.round(baseTotalCost * 1.37).toLocaleString('ru-RU') + ' ₽';
+      document.getElementById('res-base-quote').innerText = Math.round(baseQuote).toLocaleString('ru-RU') + ' ₽';
+      document.getElementById('res-comp-price').innerText = Math.round(compPrice).toLocaleString('ru-RU') + ' ₽';
       document.getElementById('res-opt-cost').innerText = Math.round(optTotalCost).toLocaleString('ru-RU') + ' ₽';
+      document.getElementById('res-sub-cost').innerText = Math.round(subTotalCost).toLocaleString('ru-RU') + ' ₽';
       document.getElementById('res-win-price').innerText = Math.round(winPrice).toLocaleString('ru-RU') + ' ₽';
       document.getElementById('res-profit').innerText = '+' + Math.round(profit).toLocaleString('ru-RU') + ' ₽ (22.0% маржи)';
 
+      const deltaEl = document.getElementById('res-delta-comp');
       if (deltaComp < 0) {
-        document.getElementById('res-delta-comp').innerText = Math.round(deltaComp).toLocaleString('ru-RU') + ' ₽ (Ниже конкурента!)';
-        document.getElementById('res-delta-comp').style.color = 'var(--accent-green)';
+        deltaEl.innerText = Math.round(deltaComp).toLocaleString('ru-RU') + ' ₽ (Ниже конкурента — победа!)';
+        deltaEl.style.color = 'var(--accent-green)';
       } else {
-        document.getElementById('res-delta-comp').innerText = '+' + Math.round(deltaComp).toLocaleString('ru-RU') + ' ₽ (Выше конкурента)';
-        document.getElementById('res-delta-comp').style.color = 'var(--accent-red)';
+        deltaEl.innerText = '+' + Math.round(deltaComp).toLocaleString('ru-RU') + ' ₽ (Выше конкурента)';
+        deltaEl.style.color = 'var(--accent-red)';
+      }
+
+      document.getElementById('res-mob-metrics').innerText =
+        'N* = ' + nStar + ' шт • Требуется ЧПУ: ' + reqHours.toFixed(1) + ' ч (доступно ' + availHours + ' ч)';
+
+      const mobEl = document.getElementById('res-mob-verdict');
+      if (batch < nStar || subTotalCost < optTotalCost) {
+        mobEl.className = 'badge badge-blue';
+        mobEl.innerText = 'BUY_SUBCONTRACT: ВЫГОДНЕЕ СУБПОДРЯД (Малая партия < N*)';
+      } else if (reqHours > availHours) {
+        mobEl.className = 'badge badge-warn';
+        mobEl.innerText = 'HYBRID_SPLIT: СВОЁ ЧПУ + КООПЕРАЦИЯ (Дефицит ' + (reqHours - availHours).toFixed(1) + ' станко-ч)';
+      } else {
+        mobEl.className = 'badge badge-ok';
+        mobEl.innerText = 'MAKE_IN_HOUSE: ТОЧИТЬ В СВОЁМ ЦЕХУ (Экономия ' + Math.round(subTotalCost - optTotalCost).toLocaleString('ru-RU') + ' ₽)';
       }
     }
 
-    // Инициализация при загрузке
+    function recalcLogistics() {
+      const routeKey = document.getElementById('log-route').value;
+      const weight = parseFloat(document.getElementById('log-weight').value);
+      const reqRate = parseFloat(document.getElementById('log-rate').value);
+      const b = LOG_BENCHMARKS[routeKey];
+
+      document.getElementById('val-cargo-weight').innerText = weight.toLocaleString('ru-RU') + ' кг';
+      document.getElementById('val-req-rate').innerText = reqRate.toLocaleString('ru-RU') + ' ₽';
+
+      const useDedicated = weight > 2500;
+      const targetRate = useDedicated ? b.dedicated : b.shared;
+      const delta = reqRate - targetRate;
+      const overpayPct = delta > 0 ? (delta / targetRate) * 100.0 : 0.0;
+
+      document.getElementById('log-mode').innerText = useDedicated
+        ? 'Отдельная машина (вес > 2 500 кг)'
+        : 'Попутный догруз АТИ.СУ (LTL, вес ≤ 2 500 кг)';
+      document.getElementById('log-bench').innerText = targetRate.toLocaleString('ru-RU') + ' ₽';
+      document.getElementById('log-req-out').innerText = reqRate.toLocaleString('ru-RU') + ' ₽';
+
+      const savEl = document.getElementById('log-savings');
+      const boxEl = document.getElementById('log-verdict-box');
+      if (delta > 2000) {
+        savEl.innerText = '+' + Math.round(delta).toLocaleString('ru-RU') + ' ₽ (переплата +' + overpayPct.toFixed(1) + '%)';
+        savEl.style.color = 'var(--accent-amber)';
+        boxEl.style.color = '#fca5a5';
+        boxEl.innerText = 'ВНИМАНИЕ: Ставка логиста завышена на ' + overpayPct.toFixed(1) + '%. Рыночный тариф АТИ.СУ: ' + targetRate.toLocaleString('ru-RU') + ' ₽.';
+      } else {
+        savEl.innerText = '0 ₽ (ставка в рыночном коридоре)';
+        savEl.style.color = 'var(--accent-green)';
+        boxEl.style.color = 'var(--accent-green)';
+        boxEl.innerText = '✅ Запрошенная ставка соответствует рыночному коридору АТИ.СУ.';
+      }
+    }
+
     recalc();
+    recalcLogistics();
   </script>
 </body>
 </html>

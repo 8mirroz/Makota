@@ -1,72 +1,72 @@
-# Makota
+# 🏭 Makota Industrial OS — Демонстрационный репозиторий для металлообрабатывающего производства
 
-Проект валидации, юнит-экономики и запуска бизнес-направлений Makota.
+> **Готовый демонстрационный продукт**: Система снижения себестоимости заказов, оптовой консолидации закупок металла, контроля сроков между отделами («Цифровой бегунок») и планирования парка ЧПУ.  
+> Работает локально внутри контура предприятия (**Python 3.8+, 0 внешних зависимостей, без передачи чертежей и цен в облака**).
 
-## Установленный стек: Founder Skill Suite
+---
 
-В проект интегрирован пакет из 11 взаимосвязанных навыков для стресс-тестирования бизнеса перед запуском:
+## 🚀 С чего начать знакомство (для собственника и руководства завода)
 
-| Команда / Навык | Роль | Назначение |
+1. 📊 **[Презентация проекта простым деловым языком (`PRESENTATION.md`)](PRESENTATION.md)**  
+   Как устроена система, за счёт чего она снижает себестоимость детали на 15–23% (на примере тендера «РегионСтрой»), как работает в цеху без компьютеров у станочников и как интегрируется с вашей 1С.
+2. 📘 **[Инструкция пользователя, наполнение и настройка (`ONBOARDING.md`)](ONBOARDING.md)**  
+   Пошаговое руководство: как пользоваться каждой функцией директору, технологу, снабженцу и начальнику цеха, как добавлять свои заказы и где менять ставки станко-часа, скидки на металл и нормативы времени.
+3. 🖥️ **[Интерактивный пульт управления в браузере (`reports/makota_interactive_dashboard.html`)](reports/makota_interactive_dashboard.html)**  
+   Откройте этот файл двойным кликом в любом браузере (интернет не нужен). Внутри 6 интерактивных вкладок: симулятор КП и тендеров, расчёт точки «Своё ЧПУ или Субподряд», проверка транспортных ставок АТИ.СУ, пулы металла, «Цифровой бегунок» SLA и расписание ЧПУ.
+4. 🧭 **[Управленческий дашборд (`DASHBOARD.md`)](DASHBOARD.md)** и **[Главный хаб завода в Obsidian (`00_Главная.md`)](00_Главная.md)**  
+   Откройте папку проекта в бесплатной программе [Obsidian](https://obsidian.md), чтобы увидеть живую базу заказов, станков ЧПУ, техкарт, протоколов ОТК и поставщиков.
+
+---
+
+## ⚙️ Вычислительное ядро системы (`engine/` — Pure Python 3.8+)
+
+Все финансовые и технологические расчёты выполняются детерминированным математическим ядром без галлюцинаций языковых моделей:
+
+| Модуль | Назначение | Ключевые классы и функции |
 | --- | --- | --- |
-| `/founder-board` | Совет директоров | 3 субагента по фреймворкам: Алекс Гормози (*$100M Offers*), Питер Тиль (*Zero to One*), Стив Джобс (*Steve Jobs*). Оценка, риски, вердикт. |
-| `/founder-competitors` | Разведчик конкурентов | Карта прямых/косвенных конкурентов и субститутов с ценами, позиционированием и жалобами клиентов. |
-| `/founder-consumer` | Панель покупателей | Рой из 100 покупательских персон (субагентов). Прогон оффера через 100 сценариев покупки с фиксацией возражений и причин отказов. |
-| `/founder-pricing` | Стратег ценообразования | Анализ чувствительности цен Ван Вестендорпа (Van Westendorp PSM): PMC, PME, OPP, IPP. |
-| `/founder-offer` | Архитектор оффера | Стек ценности (бонусы, гарантии, срочность, нейминг) для снятия возражений покупательской панели. |
-| `/founder-cfo` | Финансовый директор (CFO) | Юнит-экономика: маржа, точка безубыточности (break-even), помесячный прогноз 1-го года, окупаемость стартовых инвестиций, what-if сценарии. |
-| `/founder-marketing` | Директор по маркетингу | Позиционирование, каналы привлечения, 30-дневная кампания запуска, 10 хуков, предельная стоимость клиента (CAC cap). |
-| `/founder-brand` | Бренд-дизайнер | Нейминг, проверка торговых марок/доменов, Tone of Voice, обещание бренда и гайдлайны. |
-| `/founder-ops` | Операционный директор | Поставщики, штат, регламенты дня запуска, софт, разрешения, реестр операционных рисков. |
-| `/founder-launch` | Лид запуска | Дешёвый полевой тест, обратный отсчёт запуска, регламент первого дня и первые 30 дней работы. |
-| `/founder-plan` | Бизнес-планировщик | Сборка единого бизнес-плана `founder/business-plan.md` с детерминированным расчётом вердикта (`Profitable`, `Not yet`, `Incomplete`). |
+| [`engine/cost_calculator.py`](engine/cost_calculator.py) | 3-маршрутная калькуляция себестоимости деталей по ISO 23247, анализ цены для победы в тендере и расчёт точки безразличия Make-or-Buy ($N^*$) | `CostEngineer`, `ManufacturingRoute`, `MachiningOperation` |
+| [`engine/procurement_matcher.py`](engine/procurement_matcher.py) | Автоматическое объединение потребностей в металле в оптовые лоты (скидки 4–14%) с учётом временного окна запуска в цех | `ProcurementMatcher`, `RawStockRequirement`, `ProcurementPoolLot` |
+| [`engine/logistics_validator.py`](engine/logistics_validator.py) | Аудит транспортных ставок по рыночным коридорам АТИ.СУ и выявление переплат за отдельную машину вместо попутного догруза (LTL) | `LogisticsValidator`, `FreightBenchmark` |
+| [`engine/order_sla_tracker.py`](engine/order_sla_tracker.py) | «Цифровой бегунок» — контроль нормативов времени (SLA) по каждому отделу от заявки и закупки металла до отгрузки | `OrderSLATracker`, `OrderPipelineStatus` |
+| [`engine/production_planner.py`](engine/production_planner.py) | Алгоритмическое расписание станков ЧПУ по срокам сдачи (EDD) с матрицей времени переналадки между сталью, нержавейкой и бронзой | `ProductionPlanner`, `ProductionJob`, `ScheduledSlot` |
+| [`engine/quality_and_tooling.py`](engine/quality_and_tooling.py) | Контроль ресурса твердосплавных пластин в минутах (предупреждение до брака) и статистическая оценка замеров ОТК ($C_{pk}$) | `QualityAndToolingEngine`, `ToolLifeRecord`, `DimensionMeasurement` |
+| [`engine/vault_parser.py`](engine/vault_parser.py) | Парсер и валидатор карточек заказов Obsidian Vault с приоритетом меток времени этапа (`stage_entered_at` $\to$ `updated_at` $\to$ `created_at`) | `load_vault_orders`, `parse_frontmatter`, `validate_vault_order_frontmatter` |
+| [`engine/vault_runner.py`](engine/vault_runner.py) | Сквозной генератор ежедневного сводного отчёта для собственника (`reports/pilot_report.md`) | `build_pilot_report`, `main` |
+| [`engine/demo_showcase.py`](engine/demo_showcase.py) | Наглядная демонстрация работы всех 6 расчётных контуров одной командой в терминале | `generate_showcase_output`, `main` |
 
 ---
 
-## Порядок запуска пайплайна
+## 🗂️ Структура рабочего пространства завода (Obsidian Vault)
 
-Каждый этап опирается на данные предыдущих и сохраняет артефакты в папку `founder/`:
-
-```
-board ➔ competitors ➔ consumer ➔ pricing ➔ offer ➔ cfo ➔ marketing ➔ brand ➔ ops ➔ launch ➔ plan
-```
-
-1. `founder/idea.md` (входная точка: продукт, клиент, ценник, гео/доставка, ограничения)
-2. `founder/competitors.md`
-3. `founder/customer.json` + `founder/pitch.md` ➔ `founder/panel/`
-4. `founder/pricing-curve.md`
-5. `founder/offer.md`
-6. `founder/numbers.json` ➔ `founder/cfo.md`
-7. `founder/marketing.md`
-8. `founder/brand.md`
-9. `founder/ops.md`
-10. `founder/launch.md`
-11. `founder/business-plan.md`
+- **[`00_Главная.md`](00_Главная.md)** — центральный экран навигации со сводными таблицами активных заказов и станков ЧПУ.
+- **[`01_Дирекция/`](01_Дирекция/)** — финансовый дашборд руководителя, презентация проекта, инструкция по онбордингу и справочный пакет из 130 промышленных workflow.
+- **[`02_Продажи_и_Заказы/`](02_Продажи_и_Заказы/)** — карточки активных заказов (`MKT-2026-084` Фланцы 40Х, `MKT-2026-085` Шайбы 12Х18Н10Т, `MKT-2026-086` Втулки БрАЖ) и архив закрытых сделок с анализом План/Факт (`MKT-2026-079`).
+- **[`03_Производство_и_Технология/`](03_Производство_и_Технология/)** — паспорта станков ЧПУ (`CNC-LATHE-01 Doosan Puma`, `VMC-5AXIS-02 Hermle C400`), технологические карты, эталонные режимы резания и протоколы замеров ОТК (`QC-2026-084`).
+- **[`04_Снабжение_и_Кооперация/`](04_Снабжение_и_Кооперация/)** — активные пулы закупок металлопроката и карточки проверенных поставщиков (`ООО «Уралмет»`).
+- **[`05_База_Знаний/`](05_База_Знаний/)** — справочники сталей и сплавов (`40Х`, `09Г2С`, `12Х18Н10Т`, `БрАЖ9-4`, `Д16Т`), реестр твердосплавных пластин и инструкции по устранению брака.
+- **[`06_Шаблоны/`](06_Шаблоны/)** — готовые шаблоны для создания новых заказов, техкарт, актов ОТК и карточек поставщиков в 1 клик.
 
 ---
 
-## Архитектура интеграции в Makota
+## 📐 Архитектурные стандарты, безопасность и ADR (`specs/` & `docs/`)
 
-- **Antigravity Workspace:** `.agents/skills/founder-*` (локальные проектные навыки)
-- **Claude Code Workspace:** `.claude/skills` (симлинк на `.agents/skills`)
-- **Direct CLI & Tools:** `skills/` (симлинк на `.agents/skills`)
-- **Global Antigravity Catalog:** `~/.gemini/config/skills/founder-*` (доступно во всех проектах)
-- **Manifests:** `.claude-plugin/plugin.json` и `.claude-plugin/marketplace.json`
-- **Tests:** `python3 -m unittest discover -s tests -v` (29 тестов, 100% pass)
+- **Информационная и промышленная безопасность (ISA/IEC 62443)**: [`specs/security/on_prem_llm_architecture.md`](specs/security/on_prem_llm_architecture.md) и [`docs/contracts/data_classification.md`](docs/contracts/data_classification.md).
+- **Единый контракт статусов заказа**: [`docs/contracts/status_contract.md`](docs/contracts/status_contract.md).
+- **Машиночитаемые JSON-схемы (Draft 2020-12)**: [`specs/schemas/`](specs/schemas/digital_thread_order.schema.json) (Digital Thread Order, Machine Telemetry, Tool Registry, QC Protocol).
+- **Реестр архитектурных решений (`docs/adr/`)**: [`ADR-0001`](docs/adr/ADR-0001-pilot-track-a-meeting-first.md) .. [`ADR-0004`](docs/adr/ADR-0004-deterministic-python-engine-zero-deps.md).
+- **Дополнительный инструментарий бизнес-моделирования**: пакет из 11 аналитических навыков Founder Skill Suite в `skills/founder-*` (описание в [`FOUNDER_SKILLS.md`](FOUNDER_SKILLS.md)).
 
 ---
 
-## Быстрый запуск утилит (Python 3.8+, no external dependencies)
+## ⚡ Быстрый запуск из командной строки (0 внешних зависимостей)
 
 ```bash
-# Расчет юнит-экономики (CFO)
-python3 skills/founder-cfo/unit_economics.py skills/founder-cfo/example.json
+# 1. Наглядная демонстрация работы всех 6 расчётных модулей на экране:
+python3 engine/demo_showcase.py
 
-# Инициализация панели покупателей (100 персон)
-python3 skills/founder-consumer/panel.py init --customer founder/customer.json --pitch founder/pitch.md
+# 2. Генерация сводного отчёта для собственника по карточкам заказов Obsidian Vault:
+python3 engine/vault_runner.py --vault . --report reports/pilot_report.md
 
-# Анализ ценовой чувствительности
-python3 skills/founder-pricing/van_westendorp.py founder/panel/answers --price 6.50
-
-# Компиляция итогового бизнес-плана
-python3 skills/founder-plan/compile.py --dir founder
+# 3. Полный прогон автоматических тестов (ядро engine, JSON-схемы, карточки Vault, утилиты):
+python3 -m unittest discover -s tests -v
 ```
