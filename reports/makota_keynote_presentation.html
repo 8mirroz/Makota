@@ -494,6 +494,185 @@
       line-height: 1.35;
     }
 
+    /* Clean HTML/CSS Architecture Diagrams (Zero Text Clipping) */
+    .arch-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .arch-layer {
+      background: var(--bg-card);
+      border: 1px solid var(--border-strong);
+      border-radius: 18px;
+      padding: 14px 16px;
+    }
+
+    .arch-layer.core {
+      background: linear-gradient(135deg, var(--accent-blue-soft), var(--accent-emerald-soft));
+      border: 1.5px solid var(--accent-blue);
+      border-radius: 20px;
+      padding: 16px;
+    }
+
+    .arch-eyebrow {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+      line-height: 1.3;
+    }
+
+    .arch-layer.core .arch-eyebrow {
+      color: var(--accent-blue);
+    }
+
+    .arch-chips-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .arch-chip {
+      background: var(--bg-card-subtle);
+      border: 1px solid var(--border-hairline);
+      border-radius: 10px;
+      padding: 9px 8px;
+      font-size: 11.5px;
+      font-weight: 600;
+      color: var(--text-primary);
+      text-align: center;
+      line-height: 1.25;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .arch-grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    .arch-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border-hairline);
+      border-radius: 14px;
+      padding: 12px 13px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .arch-box-title {
+      font-size: 12.5px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .arch-box-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      font-size: 11px;
+      line-height: 1.35;
+      color: var(--text-secondary);
+    }
+
+    .arch-box-foot {
+      font-size: 10.5px;
+      font-weight: 650;
+      margin-top: 2px;
+    }
+
+    .arch-connectors {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      height: 24px;
+      padding: 0 36px;
+    }
+
+    .arch-conn-line {
+      width: 2px;
+      height: 100%;
+      border-left: 2px dashed var(--accent-blue);
+      position: relative;
+    }
+
+    .arch-conn-line.emerald {
+      border-left-color: var(--accent-emerald);
+    }
+
+    .arch-conn-line::after {
+      content: "";
+      position: absolute;
+      bottom: -3px;
+      left: -4.5px;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--accent-blue);
+    }
+
+    .arch-conn-line.emerald::after {
+      background: var(--accent-emerald);
+    }
+
+    .arch-out-pill {
+      border-radius: 10px;
+      padding: 9px 8px;
+      font-size: 11.5px;
+      font-weight: 600;
+      text-align: center;
+      line-height: 1.25;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Security Concentric Stack (Slide 6) */
+    .sec-outer {
+      background: var(--bg-card);
+      border: 1.2px solid var(--border-strong);
+      border-radius: 22px;
+      padding: 16px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .sec-mid {
+      background: var(--accent-blue-soft);
+      border: 1.2px solid var(--accent-blue);
+      border-radius: 18px;
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .sec-core {
+      background: var(--bg-card);
+      border: 1.8px solid var(--accent-emerald);
+      border-radius: 14px;
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .sec-title-sm {
+      font-size: 10.5px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      line-height: 1.35;
+    }
+
     /* Overview Modal Grid */
     .overview-overlay {
       position: fixed;
@@ -632,68 +811,70 @@
           </div>
         </div>
 
-        <!-- Right Visual: Layered System Infographic -->
-        <div class="bento-card subtle" style="justify-content: center; padding: 26px;">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
-            <span class="mono" style="font-size: 11px; font-weight: 600; color: var(--text-muted); letter-spacing: 0.05em;">АРХИТЕКТУРА НАДСТРОЙКИ ПОВЕРХ ТЕКУЩИХ СИСТЕМ</span>
+        <!-- Right Visual: Layered System Infographic (HTML/CSS) -->
+        <div class="bento-card subtle" style="justify-content: center; padding: 22px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 14px;">
+            <span class="mono" style="font-size: 10.5px; font-weight: 600; color: var(--text-muted); letter-spacing: 0.05em;">АРХИТЕКТУРА НАДСТРОЙКИ ПОВЕРХ ТЕКУЩИХ СИСТЕМ</span>
             <span class="tag-pill tag-emerald mono">ZERO ERP RIP-AND-REPLACE</span>
           </div>
 
-          <svg viewBox="0 0 500 420" width="100%" height="auto" role="img" aria-label="Схема архитектуры Makota OS">
-            <defs>
-              <linearGradient id="coreGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stop-color="#0071e3" stop-opacity="0.16"/>
-                <stop offset="100%" stop-color="#059669" stop-opacity="0.14"/>
-              </linearGradient>
-            </defs>
-
-            <!-- Layer 1: Existing Factory Inputs -->
-            <rect x="16" y="14" width="468" height="92" rx="18" fill="var(--bg-card)" stroke="var(--border-strong)" stroke-width="1.2"/>
-            <text x="34" y="38" fill="var(--text-muted)" font-size="10" font-weight="700" letter-spacing="0.08em">УРОВЕНЬ 1 • ПРИВЫЧНЫЕ ДАННЫЕ ЗАВОДА (БЕЗ ЛОМКИ ПРОЦЕССОВ)</text>
-            <rect x="34" y="52" width="136" height="38" rx="10" fill="var(--bg-card-subtle)" stroke="var(--border-hairline)"/>
-            <text x="102" y="75" text-anchor="middle" fill="var(--text-primary)" font-size="12" font-weight="600">Выгрузки 1С / Склад</text>
-            <rect x="182" y="52" width="136" height="38" rx="10" fill="var(--bg-card-subtle)" stroke="var(--border-hairline)"/>
-            <text x="250" y="75" text-anchor="middle" fill="var(--text-primary)" font-size="12" font-weight="600">База тендеров и КП</text>
-            <rect x="330" y="52" width="136" height="38" rx="10" fill="var(--bg-card-subtle)" stroke="var(--border-hairline)"/>
-            <text x="398" y="75" text-anchor="middle" fill="var(--text-primary)" font-size="12" font-weight="600">MD-карточки / Чертежи</text>
+          <div class="arch-stack" role="img" aria-label="Схема архитектуры Industrial OS для Makota">
+            <!-- Layer 1 -->
+            <div class="arch-layer">
+              <div class="arch-eyebrow">Уровень 1 • Привычные данные завода (без ломки процессов)</div>
+              <div class="arch-chips-3">
+                <div class="arch-chip">Выгрузки 1С / Склад</div>
+                <div class="arch-chip">База тендеров и КП</div>
+                <div class="arch-chip">MD-карточки / Чертежи</div>
+              </div>
+            </div>
 
             <!-- Connectors 1 -> 2 -->
-            <path d="M102 106 L102 138 M250 106 L250 138 M398 106 L398 138" stroke="var(--accent-blue)" stroke-width="1.8" stroke-dasharray="4 4"/>
-            <circle cx="102" cy="138" r="3.5" fill="var(--accent-blue)"/>
-            <circle cx="250" cy="138" r="3.5" fill="var(--accent-blue)"/>
-            <circle cx="398" cy="138" r="3.5" fill="var(--accent-blue)"/>
+            <div class="arch-connectors">
+              <div class="arch-conn-line"></div>
+              <div class="arch-conn-line"></div>
+              <div class="arch-conn-line"></div>
+            </div>
 
-            <!-- Layer 2: Makota Core -->
-            <rect x="16" y="140" width="468" height="142" rx="20" fill="url(#coreGrad)" stroke="var(--accent-blue)" stroke-width="1.5"/>
-            <text x="34" y="166" fill="var(--accent-blue)" font-size="10.5" font-weight="700" letter-spacing="0.08em">УРОВЕНЬ 2 • ЯДРО MAKOTA INDUSTRIAL OS (ОН-ПРЕМ КОНТУР)</text>
-
-            <rect x="34" y="180" width="210" height="84" rx="14" fill="var(--bg-card)" stroke="var(--border-hairline)"/>
-            <text x="50" y="204" fill="var(--text-primary)" font-size="13" font-weight="700">Детерминированное ядро</text>
-            <text x="50" y="224" fill="var(--text-secondary)" font-size="11.5">• Себестоимость и Make-or-Buy</text>
-            <text x="50" y="241" fill="var(--text-secondary)" font-size="11.5">• Пулы металла и коридоры АТИ.СУ</text>
-            <text x="50" y="257" fill="var(--accent-emerald)" font-size="10.5" font-weight="600">0% арифметических ошибок LLM</text>
-
-            <rect x="256" y="180" width="210" height="84" rx="14" fill="var(--bg-card)" stroke="var(--border-hairline)"/>
-            <text x="272" y="204" fill="var(--text-primary)" font-size="13" font-weight="700">ИИ-контролёры + RAG</text>
-            <text x="272" y="224" fill="var(--text-secondary)" font-size="11.5">• SLA-трекер отделов и уведомления</text>
-            <text x="272" y="241" fill="var(--text-secondary)" font-size="11.5">• Поиск по техкартам и ГОСТам</text>
-            <text x="272" y="257" fill="var(--accent-blue)" font-size="10.5" font-weight="600">Человек утверждает решения</text>
+            <!-- Layer 2 -->
+            <div class="arch-layer core">
+              <div class="arch-eyebrow">Уровень 2 • Ядро Industrial OS для Makota (он-прем контур)</div>
+              <div class="arch-grid-2">
+                <div class="arch-box">
+                  <div class="arch-box-title">Детерминированное ядро</div>
+                  <ul class="arch-box-list">
+                    <li>• Себестоимость и Make-or-Buy</li>
+                    <li>• Пулы металла и АТИ.СУ</li>
+                  </ul>
+                  <div class="arch-box-foot" style="color: var(--accent-emerald);">0% арифметических ошибок LLM</div>
+                </div>
+                <div class="arch-box">
+                  <div class="arch-box-title">ИИ-контролёры + RAG</div>
+                  <ul class="arch-box-list">
+                    <li>• SLA-трекер и уведомления</li>
+                    <li>• Поиск по техкартам и ГОСТам</li>
+                  </ul>
+                  <div class="arch-box-foot" style="color: var(--accent-blue);">Человек утверждает решения</div>
+                </div>
+              </div>
+            </div>
 
             <!-- Connectors 2 -> 3 -->
-            <path d="M160 282 L160 314 M340 282 L340 314" stroke="var(--accent-emerald)" stroke-width="1.8" stroke-dasharray="4 4"/>
-            <circle cx="160" cy="314" r="3.5" fill="var(--accent-emerald)"/>
-            <circle cx="340" cy="314" r="3.5" fill="var(--accent-emerald)"/>
+            <div class="arch-connectors" style="padding: 0 72px;">
+              <div class="arch-conn-line emerald"></div>
+              <div class="arch-conn-line emerald"></div>
+            </div>
 
-            <!-- Layer 3: Outputs -->
-            <rect x="16" y="316" width="468" height="90" rx="18" fill="var(--bg-card)" stroke="var(--border-strong)" stroke-width="1.2"/>
-            <text x="34" y="340" fill="var(--text-muted)" font-size="10" font-weight="700" letter-spacing="0.08em">УРОВЕНЬ 3 • УПРАВЛЕНЧЕСКИЙ ВЫХОД И ЦЕХ БЕЗ ПЛАНШЕТОВ</text>
-            <rect x="34" y="352" width="136" height="38" rx="10" fill="var(--accent-blue-soft)"/>
-            <text x="102" y="375" text-anchor="middle" fill="var(--accent-blue)" font-size="11.5" font-weight="600">Пульт Директора</text>
-            <rect x="182" y="352" width="136" height="38" rx="10" fill="var(--accent-emerald-soft)"/>
-            <text x="250" y="375" text-anchor="middle" fill="var(--accent-emerald)" font-size="11.5" font-weight="600">Пакет подрядчика</text>
-            <rect x="330" y="352" width="136" height="38" rx="10" fill="var(--accent-amber-soft)"/>
-            <text x="398" y="375" text-anchor="middle" fill="var(--accent-amber)" font-size="11.5" font-weight="600">Штрихкод в цеху</text>
-          </svg>
+            <!-- Layer 3 -->
+            <div class="arch-layer">
+              <div class="arch-eyebrow">Уровень 3 • Управленческий выход и цех без планшетов</div>
+              <div class="arch-chips-3">
+                <div class="arch-out-pill" style="background: var(--accent-blue-soft); color: var(--accent-blue);">Пульт Директора</div>
+                <div class="arch-out-pill" style="background: var(--accent-emerald-soft); color: var(--accent-emerald);">Пакет подрядчика</div>
+                <div class="arch-out-pill" style="background: var(--accent-amber-soft); color: var(--accent-amber);">Штрихкод в цеху</div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -895,14 +1076,20 @@
               <div class="hero-metric" style="margin-top: 12px;">Дни → Минуты</div>
               <p class="card-p" style="margin-top: 8px; max-width: 440px;">Ускорение расчёта многопозиционного КП в 3 маршрутах и автогенерации готового пакета ТЗ с проходной ценой для подрядчика.</p>
             </div>
-            <svg width="150" height="96" viewBox="0 0 150 96" aria-hidden="true">
-              <rect x="6" y="16" width="138" height="22" rx="7" fill="var(--bg-pill)"/>
-              <rect x="6" y="16" width="132" height="22" rx="7" fill="var(--accent-amber)" opacity="0.75"/>
-              <text x="14" y="31" fill="#fff" font-size="10" font-weight="700">Ручной цикл (1–3 дн.)</text>
-              <rect x="6" y="52" width="138" height="22" rx="7" fill="var(--bg-pill)"/>
-              <rect x="6" y="52" width="32" height="22" rx="7" fill="var(--accent-blue)"/>
-              <text x="46" y="67" fill="var(--accent-blue)" font-size="10.5" font-weight="700">Makota (минуты)</text>
-            </svg>
+            <div style="min-width: 175px; display: flex; flex-direction: column; gap: 10px; padding-top: 6px;">
+              <div style="display: flex; flex-direction: column; gap: 4px;">
+                <div style="display: flex; justify-content: space-between; font-size: 11px; font-weight: 600; color: var(--text-secondary);">
+                  <span>Ручной цикл</span><span class="mono">1–3 дня</span>
+                </div>
+                <div class="bar-track"><div class="bar-fill" style="width: 96%; background: var(--accent-amber);"></div></div>
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 4px;">
+                <div style="display: flex; justify-content: space-between; font-size: 11px; font-weight: 600; color: var(--accent-blue);">
+                  <span>Ядро ОС</span><span class="mono">минуты</span>
+                </div>
+                <div class="bar-track"><div class="bar-fill" style="width: 18%; background: var(--accent-blue);"></div></div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -1027,7 +1214,7 @@
       </div>
 
       <footer class="slide-footer">
-        <span>Все 4 модуля уже имеют рабочие расчётные прототипы в репозитории Makota (`engine/`)</span>
+        <span>Все 4 модуля уже имеют рабочие расчётные прототипы в репозитории (<code>engine/</code>)</span>
         <span class="mono">СЛАЙД 05 / 08</span>
       </footer>
     </section>
@@ -1043,34 +1230,45 @@
       </div>
 
       <div class="grid-hero" style="margin-top: 18px;">
-        <!-- Left Infographic: Concentric / Layered Stack -->
-        <div class="bento-card subtle" style="justify-content: center;">
-          <svg viewBox="0 0 520 330" width="100%" height="auto" role="img" aria-label="8 слоёв защиты корпоративного ИИ">
-            <!-- Outer Layer: Security & Governance -->
-            <rect x="14" y="12" width="492" height="306" rx="22" fill="var(--bg-card)" stroke="var(--border-strong)" stroke-width="1.2"/>
-            <text x="34" y="38" fill="var(--text-muted)" font-size="10.5" font-weight="700" letter-spacing="0.06em">ПЕРИМЕТР ЗАВОДА • РОЛЕВОЙ ДОСТУП • ЗАЩИТА ОТ PROMPT INJECTION • АУДИТ И ЭВАЛЫ</text>
+        <!-- Left Infographic: Concentric / Layered Stack (HTML/CSS) -->
+        <div class="bento-card subtle" style="justify-content: center; padding: 20px;">
+          <div class="sec-outer" role="img" aria-label="8 слоёв защиты корпоративного ИИ">
+            <div class="sec-title-sm mono" style="color: var(--text-muted);">
+              Периметр завода • Ролевой доступ • Защита от Prompt Injection • Аудит и эвалы
+            </div>
 
-            <!-- Middle Layer: Local LLM + Factory RAG -->
-            <rect x="36" y="54" width="448" height="206" rx="18" fill="var(--accent-blue-soft)" stroke="var(--accent-blue)" stroke-width="1.2"/>
-            <text x="56" y="80" fill="var(--accent-blue)" font-size="11" font-weight="700" letter-spacing="0.05em">ЛОКАЛЬНАЯ LLM + ИНДЕКСИРОВАННАЯ БАЗА ЗАВОДА (RAG + ЗАЩИТА ОТ УСТАРЕВАНИЯ)</text>
-            <text x="56" y="100" fill="var(--text-secondary)" font-size="11.5">Техкарты • Марочник сталей • Прайсы поставщиков • Протоколы ОТК • Архив тендеров</text>
+            <div class="sec-mid">
+              <div>
+                <div class="sec-title-sm mono" style="color: var(--accent-blue);">
+                  Локальная LLM + Индексированная база завода (RAG + защита от устаревания)
+                </div>
+                <div style="font-size: 11.5px; color: var(--text-secondary); margin-top: 4px; line-height: 1.4;">
+                  Техкарты • Марочник сталей • Прайсы поставщиков • Протоколы ОТК • Архив тендеров
+                </div>
+              </div>
 
-            <!-- Inner Core: Deterministic Math Engine -->
-            <rect x="60" y="118" width="400" height="122" rx="14" fill="var(--bg-card)" stroke="var(--accent-emerald)" stroke-width="1.8"/>
-            <text x="80" y="144" fill="var(--accent-emerald)" font-size="11" font-weight="700" letter-spacing="0.06em">ЯДРО ТОЧНЫХ РАСЧЁТОВ (ENGINE/ PYTHON) — 100% ДЕТЕРМИНИЗМ</text>
-            <text x="80" y="168" fill="var(--text-primary)" font-size="12.5" font-weight="600">Калькулятор КП • Точка Make-or-Buy (N*) • Коридоры АТИ.СУ • SLA</text>
-            <text x="80" y="190" fill="var(--text-secondary)" font-size="11.5">Каждую цифру можно проверить по формуле. ИИ только вызывает расчёт и готовит сводку.</text>
-            <rect x="80" y="204" width="235" height="24" rx="7" fill="var(--accent-emerald-soft)"/>
-            <text x="92" y="220" fill="var(--accent-emerald)" font-size="11" font-weight="700">✓ Финальное решение утверждает человек</text>
+              <div class="sec-core">
+                <div class="sec-title-sm mono" style="color: var(--accent-emerald);">
+                  Ядро точных расчётов (engine/ Python) — 100% детерминизм
+                </div>
+                <div style="font-size: 12.5px; font-weight: 650; color: var(--text-primary); line-height: 1.35;">
+                  Калькулятор КП • Точка Make-or-Buy (N*) • Коридоры АТИ.СУ • SLA
+                </div>
+                <div style="font-size: 11.5px; color: var(--text-secondary); line-height: 1.4;">
+                  Каждую цифру можно проверить по формуле. ИИ только вызывает расчёт и готовит сводку.
+                </div>
+                <span class="tag-pill tag-emerald" style="margin-top: 4px; font-size: 11px;">
+                  ✓ Финальное решение утверждает человек
+                </span>
+              </div>
+            </div>
 
-            <!-- Bottom Status Pills -->
-            <rect x="36" y="274" width="140" height="28" rx="8" fill="var(--bg-card-subtle)"/>
-            <text x="106" y="292" text-anchor="middle" fill="var(--text-secondary)" font-size="11" font-weight="600">Директор → Маржа</text>
-            <rect x="190" y="274" width="140" height="28" rx="8" fill="var(--bg-card-subtle)"/>
-            <text x="260" y="292" text-anchor="middle" fill="var(--text-secondary)" font-size="11" font-weight="600">Снабжение → Пулы</text>
-            <rect x="344" y="274" width="140" height="28" rx="8" fill="var(--bg-card-subtle)"/>
-            <text x="414" y="292" text-anchor="middle" fill="var(--text-secondary)" font-size="11" font-weight="600">Мастер → Очередь</text>
-          </svg>
+            <div class="arch-chips-3">
+              <div class="arch-chip" style="font-size: 11px; color: var(--text-secondary);">Директор → Маржа</div>
+              <div class="arch-chip" style="font-size: 11px; color: var(--text-secondary);">Снабжение → Пулы</div>
+              <div class="arch-chip" style="font-size: 11px; color: var(--text-secondary);">Мастер → Очередь</div>
+            </div>
+          </div>
         </div>
 
         <!-- Right Column: 3 Concrete Guarantees -->
