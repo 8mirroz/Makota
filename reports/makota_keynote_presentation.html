@@ -1,45 +1,20 @@
 <!DOCTYPE html>
-<html lang="ru" data-theme="light">
+<html lang="ru" data-theme="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Makota Industrial OS — Презентация архитектуры (8 недель)</title>
   <style>
+    :root,
+    :root[data-theme="dark"],
     :root[data-theme="light"] {
-      --bg-canvas: #f5f5f7;
-      --bg-stage: #fbfbfd;
-      --bg-card: #ffffff;
-      --bg-card-subtle: #f5f5f7;
-      --bg-pill: rgba(0, 0, 0, 0.045);
-      --bg-glass: rgba(255, 255, 255, 0.78);
-      --border-hairline: rgba(0, 0, 0, 0.075);
-      --border-strong: rgba(0, 0, 0, 0.13);
-      --text-primary: #1d1d1f;
-      --text-secondary: #515154;
-      --text-muted: #86868b;
-      --accent-blue: #0071e3;
-      --accent-blue-soft: rgba(0, 113, 227, 0.09);
-      --accent-emerald: #059669;
-      --accent-emerald-soft: rgba(5, 150, 105, 0.1);
-      --accent-amber: #d97706;
-      --accent-amber-soft: rgba(217, 119, 6, 0.1);
-      --accent-crimson: #e11d48;
-      --accent-crimson-soft: rgba(225, 29, 72, 0.09);
-      --accent-indigo: #4f46e5;
-      --accent-indigo-soft: rgba(79, 70, 229, 0.09);
-      --shadow-card: 0 4px 24px -4px rgba(0, 0, 0, 0.045), 0 1px 2px rgba(0, 0, 0, 0.03);
-      --shadow-elevated: 0 18px 44px -12px rgba(0, 0, 0, 0.08), 0 2px 6px rgba(0, 0, 0, 0.04);
-      --svg-grid: rgba(0, 0, 0, 0.05);
-    }
-
-    :root[data-theme="dark"] {
-      /* Aligned with Global Design System Clinical Dark Board (<= 8% glow budget) */
+      /* Permanent Clinical Dark Board Theme */
       --bg-canvas: #070a0f;
       --bg-stage: #0a0e14;
       --bg-card: #111722;
       --bg-card-subtle: #161f2e;
       --bg-pill: rgba(255, 255, 255, 0.06);
-      --bg-glass: rgba(16, 22, 32, 0.82);
+      --bg-glass: rgba(16, 22, 32, 0.88);
       --border-hairline: #1e293b;
       --border-strong: #334155;
       --text-primary: #eceff4;
@@ -102,31 +77,38 @@
       align-items: center;
       justify-content: space-between;
       box-shadow: var(--shadow-card);
+      white-space: nowrap;
+      flex-wrap: nowrap;
+      gap: 12px;
     }
 
     .brand-cluster {
       display: flex;
       align-items: center;
       gap: 10px;
+      flex-shrink: 0;
+      white-space: nowrap;
     }
 
     .brand-mark {
       width: 28px;
       height: 28px;
       border-radius: 8px;
-      background: var(--text-primary);
-      color: var(--bg-card);
+      background: var(--accent-blue);
+      color: #ffffff;
       display: grid;
       place-items: center;
       font-weight: 700;
       font-size: 13px;
       letter-spacing: -0.03em;
+      flex-shrink: 0;
     }
 
     .brand-name {
       font-size: 13.5px;
       font-weight: 600;
       letter-spacing: -0.02em;
+      white-space: nowrap;
     }
 
     .brand-divider {
@@ -137,12 +119,14 @@
     .brand-sub {
       font-size: 12.5px;
       color: var(--text-muted);
+      white-space: nowrap;
     }
 
     .progress-dots {
       display: flex;
       align-items: center;
       gap: 6px;
+      flex-shrink: 1;
     }
 
     .dot-btn {
@@ -170,6 +154,8 @@
       display: flex;
       align-items: center;
       gap: 8px;
+      flex-shrink: 0;
+      white-space: nowrap;
     }
 
     .slide-counter {
@@ -309,6 +295,25 @@
       font-size: 11px;
       font-weight: 600;
       width: fit-content;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .card-topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      white-space: nowrap;
+      flex-wrap: nowrap;
+      width: 100%;
+      margin-bottom: 2px;
+    }
+
+    .card-topbar .tag-pill {
+      font-size: 10px;
+      letter-spacing: -0.01em;
+      padding: 2.5px 7.5px;
     }
 
     .tag-blue { background: var(--accent-blue-soft); color: var(--accent-blue); }
@@ -712,11 +717,15 @@
       border-color: var(--accent-blue);
     }
 
+    @media (max-width: 1220px) {
+      .brand-sub, .brand-divider { display: none; }
+    }
+
     @media (max-width: 1080px) {
       .grid-hero, .grid-3, .grid-2x2 { grid-template-columns: 1fr; }
       .col-7, .col-5, .col-4, .col-8, .col-6 { grid-column: span 12; }
       .slide { padding: 28px 24px; min-height: auto; }
-      .brand-sub { display: none; }
+      .brand-sub, .brand-divider { display: none; }
       .gantt-header { display: none; }
       .gantt-row { grid-template-columns: 1fr; }
     }
@@ -724,7 +733,7 @@
     /* Print / PDF Export (Landscape 16:9 Clean Output) */
     @media print {
       @page { size: 1366px 768px; margin: 0; }
-      body { background: #ffffff; }
+      body { background: #070a0f; color: #eceff4; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
       .deck-topbar, .overview-overlay { display: none !important; }
       .stage-wrapper { display: block; padding: 0; }
       .slide {
@@ -736,6 +745,7 @@
         box-shadow: none;
         page-break-after: always;
         break-after: page;
+        background: #0a0e14 !important;
       }
     }
   </style>
@@ -756,9 +766,6 @@
     <div class="controls-cluster">
       <button class="icon-btn" onclick="toggleOverview()" title="Сетка слайдов (G)">
         <span>☷ Слайды</span>
-      </button>
-      <button class="icon-btn" onclick="toggleTheme()" id="theme-btn" title="Переключить тему Light / Dark (T)">
-        <span>◐ Тема</span>
       </button>
       <button class="icon-btn" onclick="window.print()" title="Сохранить в PDF">
         <span>⤓ PDF</span>
@@ -993,7 +1000,7 @@
         <!-- Contour A -->
         <div class="bento-card accent-outline">
           <div>
-            <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div class="card-topbar">
               <span class="tag-pill tag-blue mono">ВАРИАНТ А • SUPPLY & COST AI</span>
               <span class="tag-pill tag-emerald mono">ЯДРО БАЗЫ</span>
             </div>
@@ -1013,7 +1020,7 @@
         <!-- Contour B -->
         <div class="bento-card accent-outline">
           <div>
-            <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div class="card-topbar">
               <span class="tag-pill tag-emerald mono">ВАРИАНТ Б • OPERATIONS & SLA AI</span>
               <span class="tag-pill tag-emerald mono">ЯДРО БАЗЫ</span>
             </div>
@@ -1033,7 +1040,7 @@
         <!-- Contour C -->
         <div class="bento-card">
           <div>
-            <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div class="card-topbar">
               <span class="tag-pill tag-indigo mono">ВАРИАНТ В • SHOPFLOOR & TECH AI</span>
               <span class="tag-pill mono" style="background: var(--bg-pill); color: var(--text-secondary);">БАЗА + ЭТАП 2</span>
             </div>
@@ -1151,7 +1158,7 @@
         <!-- Module 1 -->
         <div class="bento-card">
           <div>
-            <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div class="card-topbar">
               <span class="tag-pill tag-blue mono">МОДУЛЬ 01 • ORDER SLA</span>
               <span class="mono" style="font-size: 11px; color: var(--text-muted);">Контур Б</span>
             </div>
@@ -1169,7 +1176,7 @@
         <!-- Module 2 -->
         <div class="bento-card">
           <div>
-            <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div class="card-topbar">
               <span class="tag-pill tag-emerald mono">МОДУЛЬ 02 • ATI.SU & METAL POOL</span>
               <span class="mono" style="font-size: 11px; color: var(--text-muted);">Контур А</span>
             </div>
@@ -1185,7 +1192,7 @@
         <!-- Module 3 -->
         <div class="bento-card">
           <div>
-            <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div class="card-topbar">
               <span class="tag-pill tag-indigo mono">МОДУЛЬ 03 • MAKE-OR-BUY & SUBCONTRACT</span>
               <span class="mono" style="font-size: 11px; color: var(--text-muted);">Контур А + В</span>
             </div>
@@ -1200,7 +1207,7 @@
         <!-- Module 4 -->
         <div class="bento-card">
           <div>
-            <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div class="card-topbar">
               <span class="tag-pill tag-amber mono">МОДУЛЬ 04 • BARCODE SHOPFLOOR</span>
               <span class="mono" style="font-size: 11px; color: var(--text-muted);">По Голдратту</span>
             </div>
@@ -1512,12 +1519,6 @@
     function nextSlide() { goToSlide(current + 1); }
     function prevSlide() { goToSlide(current - 1); }
 
-    function toggleTheme() {
-      const root = document.documentElement;
-      const next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
-      root.setAttribute('data-theme', next);
-    }
-
     function toggleOverview(force) {
       const shouldOpen = typeof force === 'boolean' ? force : !overviewOverlay.classList.contains('open');
       overviewOverlay.classList.toggle('open', shouldOpen);
@@ -1538,8 +1539,6 @@
         goToSlide(0);
       } else if (e.key === 'End') {
         goToSlide(slides.length - 1);
-      } else if (e.key === 't' || e.key === 'T' || e.key === 'е' || e.key === 'Е') {
-        toggleTheme();
       } else if (e.key === 'g' || e.key === 'G' || e.key === 'п' || e.key === 'П') {
         toggleOverview();
       }
