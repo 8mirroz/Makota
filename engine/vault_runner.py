@@ -48,8 +48,16 @@ def build_pilot_report(
     now: Optional[datetime] = None,
 ) -> Tuple[str, Dict[str, Any]]:
     """Формирует Markdown-отчёт и сводную статистику по заказам Vault."""
-    ref_now = now or datetime.now()
-    orders = load_vault_orders(vault_dir, now=ref_now)
+    orders = load_vault_orders(vault_dir, now=now)
+    if now is not None:
+        ref_now = now
+    elif orders:
+        max_entered = max(o.entered_stage_at for o in orders)
+        ref_now = max_entered.replace(hour=12, minute=0, second=0, microsecond=0)
+        if ref_now < max_entered:
+            ref_now = max_entered
+    else:
+        ref_now = datetime.now()
 
     sla_statuses: List[OrderPipelineStatus] = []
     stock_requirements: List[RawStockRequirement] = []

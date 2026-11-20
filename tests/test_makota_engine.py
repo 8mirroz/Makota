@@ -99,14 +99,14 @@ class TestMakotaEngine(unittest.TestCase):
         self.assertTrue(res_constrained["capacity_constrained"])
         self.assertEqual(res_constrained["recommendation"], "HYBRID_SPLIT")
 
-    def test_competitive_bid_analysis_regionstroy_case(self):
-        """Проверка победы над конкурентом РегионСтрой (100 580 руб vs наши 137 000 руб)."""
+    def test_competitive_bid_analysis_tender_simulation(self):
+        """Проверка расчёта целевой победной цены ниже ориентира рынка при сохранении целевой маржи."""
         analysis = CostEngineer.analyze_competitive_bid(
             batch_size=1,
-            baseline_cost_rub=100000.0,       # 82к с/с + 17к логистика = ~100к
-            baseline_quote_rub=137000.0,      # Наша старая проигрышная цена
-            competitor_price_rub=100580.0,    # Цена победителя РегионСтрой
-            optimized_cost_rub=76800.0,       # Новая себестоимость после пула и инструмента
+            baseline_cost_rub=100000.0,       # Базовая расчётная с/с с логистикой
+            baseline_quote_rub=137000.0,      # Базовое КП до оптимизации
+            competitor_price_rub=100580.0,    # Целевой проходной ориентир тендера
+            optimized_cost_rub=76800.0,       # Оптимизированная с/с после пула и маршрута
             target_margin_percent=0.22,       # Целевая маржа 22%
         )
 

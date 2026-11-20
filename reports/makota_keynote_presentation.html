@@ -1,0 +1,1353 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Makota Industrial OS — Презентация архитектуры (8 недель)</title>
+  <style>
+    :root[data-theme="light"] {
+      --bg-canvas: #f5f5f7;
+      --bg-stage: #fbfbfd;
+      --bg-card: #ffffff;
+      --bg-card-subtle: #f5f5f7;
+      --bg-pill: rgba(0, 0, 0, 0.045);
+      --bg-glass: rgba(255, 255, 255, 0.78);
+      --border-hairline: rgba(0, 0, 0, 0.075);
+      --border-strong: rgba(0, 0, 0, 0.13);
+      --text-primary: #1d1d1f;
+      --text-secondary: #515154;
+      --text-muted: #86868b;
+      --accent-blue: #0071e3;
+      --accent-blue-soft: rgba(0, 113, 227, 0.09);
+      --accent-emerald: #059669;
+      --accent-emerald-soft: rgba(5, 150, 105, 0.1);
+      --accent-amber: #d97706;
+      --accent-amber-soft: rgba(217, 119, 6, 0.1);
+      --accent-crimson: #e11d48;
+      --accent-crimson-soft: rgba(225, 29, 72, 0.09);
+      --accent-indigo: #4f46e5;
+      --accent-indigo-soft: rgba(79, 70, 229, 0.09);
+      --shadow-card: 0 4px 24px -4px rgba(0, 0, 0, 0.045), 0 1px 2px rgba(0, 0, 0, 0.03);
+      --shadow-elevated: 0 18px 44px -12px rgba(0, 0, 0, 0.08), 0 2px 6px rgba(0, 0, 0, 0.04);
+      --svg-grid: rgba(0, 0, 0, 0.05);
+    }
+
+    :root[data-theme="dark"] {
+      /* Aligned with Global Design System Clinical Dark Board (<= 8% glow budget) */
+      --bg-canvas: #070a0f;
+      --bg-stage: #0a0e14;
+      --bg-card: #111722;
+      --bg-card-subtle: #161f2e;
+      --bg-pill: rgba(255, 255, 255, 0.06);
+      --bg-glass: rgba(16, 22, 32, 0.82);
+      --border-hairline: #1e293b;
+      --border-strong: #334155;
+      --text-primary: #eceff4;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --accent-blue: #2997ff;
+      --accent-blue-soft: rgba(41, 151, 255, 0.13);
+      --accent-emerald: #00e676;
+      --accent-emerald-soft: rgba(0, 230, 118, 0.12);
+      --accent-amber: #ffb300;
+      --accent-amber-soft: rgba(255, 179, 0, 0.12);
+      --accent-crimson: #ff3d71;
+      --accent-crimson-soft: rgba(255, 61, 113, 0.12);
+      --accent-indigo: #818cf8;
+      --accent-indigo-soft: rgba(129, 140, 248, 0.13);
+      --shadow-card: 0 8px 28px -6px rgba(0, 0, 0, 0.45);
+      --shadow-elevated: 0 20px 50px -12px rgba(0, 0, 0, 0.65);
+      --svg-grid: rgba(255, 255, 255, 0.05);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg-canvas);
+      color: var(--text-primary);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      transition: background 0.3s ease, color 0.3s ease;
+    }
+
+    .mono {
+      font-family: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+    }
+
+    /* Top Frosted Navigation Bar (Apple / Linear Minimalism) */
+    .deck-topbar {
+      position: fixed;
+      top: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 100;
+      width: min(1320px, calc(100vw - 32px));
+      height: 52px;
+      background: var(--bg-glass);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      border: 1px solid var(--border-hairline);
+      border-radius: 999px;
+      padding: 0 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: var(--shadow-card);
+    }
+
+    .brand-cluster {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-mark {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: var(--text-primary);
+      color: var(--bg-card);
+      display: grid;
+      place-items: center;
+      font-weight: 700;
+      font-size: 13px;
+      letter-spacing: -0.03em;
+    }
+
+    .brand-name {
+      font-size: 13.5px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+    }
+
+    .brand-divider {
+      color: var(--text-muted);
+      font-weight: 300;
+    }
+
+    .brand-sub {
+      font-size: 12.5px;
+      color: var(--text-muted);
+    }
+
+    .progress-dots {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .dot-btn {
+      width: 22px;
+      height: 6px;
+      border-radius: 999px;
+      border: none;
+      background: var(--border-strong);
+      opacity: 0.45;
+      cursor: pointer;
+      transition: all 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .dot-btn:hover {
+      opacity: 0.8;
+    }
+
+    .dot-btn.active {
+      width: 38px;
+      opacity: 1;
+      background: var(--accent-blue);
+    }
+
+    .controls-cluster {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .slide-counter {
+      font-size: 12px;
+      color: var(--text-secondary);
+      padding: 0 8px;
+      font-weight: 500;
+    }
+
+    .icon-btn {
+      background: var(--bg-pill);
+      color: var(--text-primary);
+      border: 1px solid var(--border-hairline);
+      height: 32px;
+      padding: 0 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.18s ease;
+    }
+
+    .icon-btn:hover {
+      background: var(--accent-blue-soft);
+      border-color: var(--accent-blue);
+      color: var(--accent-blue);
+    }
+
+    /* Main Stage */
+    .stage-wrapper {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 80px 20px 28px;
+    }
+
+    .slide {
+      display: none;
+      width: min(1320px, 100%);
+      min-height: 720px;
+      background: var(--bg-stage);
+      border: 1px solid var(--border-hairline);
+      border-radius: 32px;
+      padding: 44px 52px;
+      box-shadow: var(--shadow-elevated);
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      overflow: hidden;
+      animation: slideReveal 0.38s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .slide.active {
+      display: flex;
+    }
+
+    @keyframes slideReveal {
+      from {
+        opacity: 0;
+        transform: translateY(10px) scale(0.992);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    /* Typography & Header System */
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11.5px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--accent-blue);
+      background: var(--accent-blue-soft);
+      padding: 5px 12px;
+      border-radius: 999px;
+      width: fit-content;
+      margin-bottom: 12px;
+    }
+
+    .slide-title {
+      font-size: clamp(28px, 2.8vw, 40px);
+      font-weight: 700;
+      letter-spacing: -0.035em;
+      line-height: 1.1;
+      color: var(--text-primary);
+      max-width: 980px;
+    }
+
+    .slide-subtitle {
+      font-size: 16px;
+      line-height: 1.45;
+      color: var(--text-secondary);
+      margin-top: 8px;
+      max-width: 880px;
+      letter-spacing: -0.01em;
+    }
+
+    /* Bento Cards */
+    .bento-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-hairline);
+      border-radius: 22px;
+      padding: 22px 24px;
+      box-shadow: var(--shadow-card);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .bento-card.subtle {
+      background: var(--bg-card-subtle);
+      box-shadow: none;
+    }
+
+    .bento-card.accent-outline {
+      border-color: var(--accent-blue);
+      box-shadow: 0 0 0 1px var(--accent-blue-soft), var(--shadow-card);
+    }
+
+    .tag-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 9px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 600;
+      width: fit-content;
+    }
+
+    .tag-blue { background: var(--accent-blue-soft); color: var(--accent-blue); }
+    .tag-emerald { background: var(--accent-emerald-soft); color: var(--accent-emerald); }
+    .tag-amber { background: var(--accent-amber-soft); color: var(--accent-amber); }
+    .tag-crimson { background: var(--accent-crimson-soft); color: var(--accent-crimson); }
+    .tag-indigo { background: var(--accent-indigo-soft); color: var(--accent-indigo); }
+
+    /* Grids */
+    .grid-hero {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 28px;
+      align-items: stretch;
+      flex: 1;
+      margin-top: 8px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+    }
+
+    .grid-2x2 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 18px;
+      flex: 1;
+      margin-top: 18px;
+    }
+
+    .kpi-bento-grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      grid-auto-rows: minmax(195px, auto);
+      gap: 16px;
+      margin-top: 20px;
+      flex: 1;
+    }
+
+    .col-7 { grid-column: span 7; }
+    .col-5 { grid-column: span 5; }
+    .col-4 { grid-column: span 4; }
+    .col-8 { grid-column: span 8; }
+    .col-6 { grid-column: span 6; }
+
+    .hero-metric {
+      font-size: clamp(34px, 3.6vw, 50px);
+      font-weight: 700;
+      letter-spacing: -0.045em;
+      line-height: 1.02;
+      color: var(--text-primary);
+    }
+
+    .card-h3 {
+      font-size: 17px;
+      font-weight: 650;
+      letter-spacing: -0.02em;
+      margin-bottom: 6px;
+      color: var(--text-primary);
+    }
+
+    .card-p {
+      font-size: 13.5px;
+      line-height: 1.48;
+      color: var(--text-secondary);
+    }
+
+    .clean-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .clean-list li {
+      font-size: 13px;
+      line-height: 1.42;
+      color: var(--text-secondary);
+      padding-left: 16px;
+      position: relative;
+    }
+
+    .clean-list li::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent-blue);
+      position: absolute;
+      left: 0;
+      top: 6px;
+    }
+
+    /* Slide Footer */
+    .slide-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 16px;
+      margin-top: 18px;
+      border-top: 1px solid var(--border-hairline);
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    /* Mini Visual Bars & Infographic Primitives */
+    .compare-bars {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border-hairline);
+    }
+
+    .bar-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 11.5px;
+    }
+
+    .bar-label {
+      width: 110px;
+      color: var(--text-muted);
+      flex-shrink: 0;
+    }
+
+    .bar-track {
+      flex: 1;
+      height: 8px;
+      background: var(--bg-pill);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      border-radius: 999px;
+    }
+
+    /* Roadmap Gantt */
+    .gantt-container {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 18px;
+      flex: 1;
+    }
+
+    .gantt-header {
+      display: grid;
+      grid-template-columns: 260px repeat(4, 1fr);
+      gap: 10px;
+      padding: 0 14px 6px;
+      font-size: 11.5px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .gantt-row {
+      display: grid;
+      grid-template-columns: 260px repeat(4, 1fr);
+      gap: 10px;
+      align-items: center;
+      background: var(--bg-card);
+      border: 1px solid var(--border-hairline);
+      border-radius: 18px;
+      padding: 15px 16px;
+      box-shadow: var(--shadow-card);
+    }
+
+    .gantt-bar {
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+      line-height: 1.35;
+    }
+
+    /* Overview Modal Grid */
+    .overview-overlay {
+      position: fixed;
+      inset: 0;
+      background: var(--bg-glass);
+      backdrop-filter: blur(24px);
+      z-index: 200;
+      display: none;
+      padding: 80px 40px 40px;
+      overflow-y: auto;
+    }
+
+    .overview-overlay.open {
+      display: block;
+    }
+
+    .overview-grid {
+      max-width: 1280px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 18px;
+    }
+
+    .overview-item {
+      background: var(--bg-card);
+      border: 1px solid var(--border-hairline);
+      border-radius: 18px;
+      padding: 20px;
+      cursor: pointer;
+      transition: transform 0.18s ease, border-color 0.18s ease;
+      box-shadow: var(--shadow-card);
+    }
+
+    .overview-item:hover {
+      transform: translateY(-3px);
+      border-color: var(--accent-blue);
+    }
+
+    @media (max-width: 1080px) {
+      .grid-hero, .grid-3, .grid-2x2 { grid-template-columns: 1fr; }
+      .col-7, .col-5, .col-4, .col-8, .col-6 { grid-column: span 12; }
+      .slide { padding: 28px 24px; min-height: auto; }
+      .brand-sub { display: none; }
+      .gantt-header { display: none; }
+      .gantt-row { grid-template-columns: 1fr; }
+    }
+
+    /* Print / PDF Export (Landscape 16:9 Clean Output) */
+    @media print {
+      @page { size: 1366px 768px; margin: 0; }
+      body { background: #ffffff; }
+      .deck-topbar, .overview-overlay { display: none !important; }
+      .stage-wrapper { display: block; padding: 0; }
+      .slide {
+        display: flex !important;
+        width: 1366px;
+        height: 768px;
+        border-radius: 0;
+        border: none;
+        box-shadow: none;
+        page-break-after: always;
+        break-after: page;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Floating Frosted Navigation Bar -->
+  <header class="deck-topbar">
+    <div class="brand-cluster">
+      <div class="brand-mark">M</div>
+      <span class="brand-name">Industrial OS для Makota</span>
+      <span class="brand-divider">/</span>
+      <span class="brand-sub">Архитектура интеграции ИИ • База 8 недель</span>
+    </div>
+
+    <nav class="progress-dots" id="progress-dots" aria-label="Навигация по слайдам"></nav>
+
+    <div class="controls-cluster">
+      <button class="icon-btn" onclick="toggleOverview()" title="Сетка слайдов (G)">
+        <span>☷ Слайды</span>
+      </button>
+      <button class="icon-btn" onclick="toggleTheme()" id="theme-btn" title="Переключить тему Light / Dark (T)">
+        <span>◐ Тема</span>
+      </button>
+      <button class="icon-btn" onclick="window.print()" title="Сохранить в PDF">
+        <span>⤓ PDF</span>
+      </button>
+      <button class="icon-btn" onclick="prevSlide()" aria-label="Назад">←</button>
+      <span class="slide-counter mono" id="slide-counter">01 / 08</span>
+      <button class="icon-btn" onclick="nextSlide()" aria-label="Вперёд">→</button>
+    </div>
+  </header>
+
+  <main class="stage-wrapper">
+
+    <!-- =========================================================
+         SLIDE 1: HERO & SYSTEM ARCHITECTURE INFOGRAPHIC
+         ========================================================= -->
+    <section class="slide active" data-title="01. Индустриальная ОС для Makota">
+      <div class="grid-hero">
+        <div style="display: flex; flex-direction: column; justify-content: space-between; padding-right: 12px;">
+          <div>
+            <div class="eyebrow">Предложение для компании Makota • 8-Week Core</div>
+            <h1 class="slide-title" style="font-size: clamp(34px, 3.3vw, 46px);">
+              Индустриальная ОС для Makota:<br>ИИ в мелкосерийном производстве
+            </h1>
+            <p class="slide-subtitle" style="margin-top: 14px; font-size: 16.5px;">
+              Точное расчётное ядро, ИИ-контролёры и диспетчерский пульт поверх <strong>1С, выгрузок тендеров и MD-среды отделов компании Makota</strong> — без «болтливых чат-ботов» и тяжёлых ERP на полтора года.
+            </p>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 24px;">
+            <div class="bento-card">
+              <div>
+                <span class="tag-pill tag-blue mono">ЦЕЛЬ 01 • COST & SUPPLY</span>
+                <h3 class="card-h3" style="margin-top: 10px;">Снижение себестоимости обеспечения</h3>
+                <p class="card-p">Консолидация металлопроката в пулы, ревизия логистики АТИ.СУ и готовые пакеты с проходной ценой для кооперации.</p>
+              </div>
+            </div>
+            <div class="bento-card">
+              <div>
+                <span class="tag-pill tag-emerald mono">ЦЕЛЬ 02 • DIGITAL THREAD</span>
+                <h3 class="card-h3" style="margin-top: 10px;">Сшивка отделов и бумажного цеха</h3>
+                <p class="card-p">Единый «Цифровой бегунок» с контролем SLA каждого этапа и связью со станками через штрихкод за 3 секунды.</p>
+              </div>
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-top: 18px;">
+            <span class="tag-pill mono" style="background: var(--bg-pill); color: var(--text-secondary);">✓ Базовый запуск: 8 недель (4 спринта)</span>
+            <span class="tag-pill mono" style="background: var(--bg-pill); color: var(--text-secondary);">✓ 100% локальный контур (NDA)</span>
+            <span class="tag-pill mono" style="background: var(--bg-pill); color: var(--text-secondary);">✓ Read-Only ISA/IEC 62443</span>
+          </div>
+        </div>
+
+        <!-- Right Visual: Layered System Infographic -->
+        <div class="bento-card subtle" style="justify-content: center; padding: 26px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+            <span class="mono" style="font-size: 11px; font-weight: 600; color: var(--text-muted); letter-spacing: 0.05em;">АРХИТЕКТУРА НАДСТРОЙКИ ПОВЕРХ ТЕКУЩИХ СИСТЕМ</span>
+            <span class="tag-pill tag-emerald mono">ZERO ERP RIP-AND-REPLACE</span>
+          </div>
+
+          <svg viewBox="0 0 500 420" width="100%" height="auto" role="img" aria-label="Схема архитектуры Makota OS">
+            <defs>
+              <linearGradient id="coreGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#0071e3" stop-opacity="0.16"/>
+                <stop offset="100%" stop-color="#059669" stop-opacity="0.14"/>
+              </linearGradient>
+            </defs>
+
+            <!-- Layer 1: Existing Factory Inputs -->
+            <rect x="16" y="14" width="468" height="92" rx="18" fill="var(--bg-card)" stroke="var(--border-strong)" stroke-width="1.2"/>
+            <text x="34" y="38" fill="var(--text-muted)" font-size="10" font-weight="700" letter-spacing="0.08em">УРОВЕНЬ 1 • ПРИВЫЧНЫЕ ДАННЫЕ ЗАВОДА (БЕЗ ЛОМКИ ПРОЦЕССОВ)</text>
+            <rect x="34" y="52" width="136" height="38" rx="10" fill="var(--bg-card-subtle)" stroke="var(--border-hairline)"/>
+            <text x="102" y="75" text-anchor="middle" fill="var(--text-primary)" font-size="12" font-weight="600">Выгрузки 1С / Склад</text>
+            <rect x="182" y="52" width="136" height="38" rx="10" fill="var(--bg-card-subtle)" stroke="var(--border-hairline)"/>
+            <text x="250" y="75" text-anchor="middle" fill="var(--text-primary)" font-size="12" font-weight="600">База тендеров и КП</text>
+            <rect x="330" y="52" width="136" height="38" rx="10" fill="var(--bg-card-subtle)" stroke="var(--border-hairline)"/>
+            <text x="398" y="75" text-anchor="middle" fill="var(--text-primary)" font-size="12" font-weight="600">MD-карточки / Чертежи</text>
+
+            <!-- Connectors 1 -> 2 -->
+            <path d="M102 106 L102 138 M250 106 L250 138 M398 106 L398 138" stroke="var(--accent-blue)" stroke-width="1.8" stroke-dasharray="4 4"/>
+            <circle cx="102" cy="138" r="3.5" fill="var(--accent-blue)"/>
+            <circle cx="250" cy="138" r="3.5" fill="var(--accent-blue)"/>
+            <circle cx="398" cy="138" r="3.5" fill="var(--accent-blue)"/>
+
+            <!-- Layer 2: Makota Core -->
+            <rect x="16" y="140" width="468" height="142" rx="20" fill="url(#coreGrad)" stroke="var(--accent-blue)" stroke-width="1.5"/>
+            <text x="34" y="166" fill="var(--accent-blue)" font-size="10.5" font-weight="700" letter-spacing="0.08em">УРОВЕНЬ 2 • ЯДРО MAKOTA INDUSTRIAL OS (ОН-ПРЕМ КОНТУР)</text>
+
+            <rect x="34" y="180" width="210" height="84" rx="14" fill="var(--bg-card)" stroke="var(--border-hairline)"/>
+            <text x="50" y="204" fill="var(--text-primary)" font-size="13" font-weight="700">Детерминированное ядро</text>
+            <text x="50" y="224" fill="var(--text-secondary)" font-size="11.5">• Себестоимость и Make-or-Buy</text>
+            <text x="50" y="241" fill="var(--text-secondary)" font-size="11.5">• Пулы металла и коридоры АТИ.СУ</text>
+            <text x="50" y="257" fill="var(--accent-emerald)" font-size="10.5" font-weight="600">0% арифметических ошибок LLM</text>
+
+            <rect x="256" y="180" width="210" height="84" rx="14" fill="var(--bg-card)" stroke="var(--border-hairline)"/>
+            <text x="272" y="204" fill="var(--text-primary)" font-size="13" font-weight="700">ИИ-контролёры + RAG</text>
+            <text x="272" y="224" fill="var(--text-secondary)" font-size="11.5">• SLA-трекер отделов и уведомления</text>
+            <text x="272" y="241" fill="var(--text-secondary)" font-size="11.5">• Поиск по техкартам и ГОСТам</text>
+            <text x="272" y="257" fill="var(--accent-blue)" font-size="10.5" font-weight="600">Человек утверждает решения</text>
+
+            <!-- Connectors 2 -> 3 -->
+            <path d="M160 282 L160 314 M340 282 L340 314" stroke="var(--accent-emerald)" stroke-width="1.8" stroke-dasharray="4 4"/>
+            <circle cx="160" cy="314" r="3.5" fill="var(--accent-emerald)"/>
+            <circle cx="340" cy="314" r="3.5" fill="var(--accent-emerald)"/>
+
+            <!-- Layer 3: Outputs -->
+            <rect x="16" y="316" width="468" height="90" rx="18" fill="var(--bg-card)" stroke="var(--border-strong)" stroke-width="1.2"/>
+            <text x="34" y="340" fill="var(--text-muted)" font-size="10" font-weight="700" letter-spacing="0.08em">УРОВЕНЬ 3 • УПРАВЛЕНЧЕСКИЙ ВЫХОД И ЦЕХ БЕЗ ПЛАНШЕТОВ</text>
+            <rect x="34" y="352" width="136" height="38" rx="10" fill="var(--accent-blue-soft)"/>
+            <text x="102" y="375" text-anchor="middle" fill="var(--accent-blue)" font-size="11.5" font-weight="600">Пульт Директора</text>
+            <rect x="182" y="352" width="136" height="38" rx="10" fill="var(--accent-emerald-soft)"/>
+            <text x="250" y="375" text-anchor="middle" fill="var(--accent-emerald)" font-size="11.5" font-weight="600">Пакет подрядчика</text>
+            <rect x="330" y="352" width="136" height="38" rx="10" fill="var(--accent-amber-soft)"/>
+            <text x="398" y="375" text-anchor="middle" fill="var(--accent-amber)" font-size="11.5" font-weight="600">Штрихкод в цеху</text>
+          </svg>
+        </div>
+      </div>
+
+      <footer class="slide-footer">
+        <span>Makota Industrial OS • Мелкосерийное машиностроение и многопозиционные комплектации</span>
+        <span class="mono">СЛАЙД 01 / 08</span>
+      </footer>
+    </section>
+
+    <!-- =========================================================
+         SLIDE 2: DIAGNOSTIC FUNNEL — WHERE MARGIN & TIME LEAK
+         ========================================================= -->
+    <section class="slide" data-title="02. Где теряются маржа и скорость">
+      <div>
+        <div class="eyebrow">Диагностика операционного цикла</div>
+        <h2 class="slide-title">Где теряются маржа и скорость исполнения заказов</h2>
+        <p class="slide-subtitle">При стабильном потоке входящих заявок главные потери возникают <strong>до запуска шпинделя</strong> — на этапе обеспечения заказа и на стыках между кабинетами.</p>
+      </div>
+
+      <!-- Visual Lead-Time Loss Bar Infographic -->
+      <div class="bento-card subtle" style="margin-top: 16px; padding: 18px 24px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+          <span class="mono" style="font-size: 11px; font-weight: 700; color: var(--text-secondary);">СТРУКТУРА ПОТЕРЬ ВРЕМЕНИ И МАРЖИ В ПОЛНОМ ЦИКЛЕ ЗАКАЗА</span>
+          <span class="tag-pill tag-crimson mono">УЗКОЕ МЕСТО — ДО СТАНКА</span>
+        </div>
+        <div style="display: grid; grid-template-columns: 1.2fr 1.3fr 1.2fr 0.9fr; gap: 6px; height: 42px;">
+          <div style="background: var(--accent-crimson-soft); border: 1px solid var(--accent-crimson); border-radius: 10px; display: flex; align-items: center; justify-content: space-between; padding: 0 12px; font-size: 12px; font-weight: 600; color: var(--accent-crimson);">
+            <span>1. Долгий расчёт КП</span><span class="mono">1–3 дня</span>
+          </div>
+          <div style="background: var(--accent-amber-soft); border: 1px solid var(--accent-amber); border-radius: 10px; display: flex; align-items: center; justify-content: space-between; padding: 0 12px; font-size: 12px; font-weight: 600; color: var(--accent-amber);">
+            <span>2. Розница металла + АТИ.СУ</span><span class="mono">Переплата</span>
+          </div>
+          <div style="background: var(--accent-crimson-soft); border: 1px solid var(--accent-crimson); border-radius: 10px; display: flex; align-items: center; justify-content: space-between; padding: 0 12px; font-size: 12px; font-weight: 600; color: var(--accent-crimson);">
+            <span>3. Паузы Снабжение ↔ Склад</span><span class="mono">Потери дней</span>
+          </div>
+          <div style="background: var(--accent-emerald-soft); border: 1px solid var(--accent-emerald); border-radius: 10px; display: flex; align-items: center; justify-content: space-between; padding: 0 12px; font-size: 12px; font-weight: 600; color: var(--accent-emerald);">
+            <span>Мехобработка ЧПУ</span><span class="mono">Норма</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3 Diagnostic Cards with Embedded Infographics -->
+      <div class="grid-3" style="margin-top: 16px; flex: 1;">
+        <div class="bento-card">
+          <div>
+            <span class="tag-pill tag-amber mono">УЗЕЛ 01 • СЫРЬЁ И ЛОГИСТИКА</span>
+            <h3 class="card-h3" style="margin-top: 12px;">Разрозненный закуп и переплата за рейсы</h3>
+            <p class="card-p">Потребность в прокате из потока тендеров не складывается в оптовые пулы, а ставки перевозчиков на АТИ.СУ не проходят автоматическую независимую сверку.</p>
+          </div>
+          <div class="compare-bars">
+            <div class="bar-row">
+              <span class="bar-label">Разовый закуп</span>
+              <div class="bar-track"><div class="bar-fill" style="width: 96%; background: var(--accent-crimson);"></div></div>
+            </div>
+            <div class="bar-row">
+              <span class="bar-label">Пул + догруз</span>
+              <div class="bar-track"><div class="bar-fill" style="width: 68%; background: var(--accent-emerald);"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bento-card">
+          <div>
+            <span class="tag-pill tag-blue mono">УЗЕЛ 02 • MAKE-OR-BUY И КООПЕРАЦИЯ</span>
+            <h3 class="card-h3" style="margin-top: 12px;">Медленный просчёт заявок и субподряда</h3>
+            <p class="card-p">Многопозиционные комплектации считаются вручную днями. Партнёру-станочнику тяжело быстро посчитать экономику без готового ТЗ, технологии и целевой цены.</p>
+          </div>
+          <div class="compare-bars">
+            <div class="bar-row">
+              <span class="bar-label">Ручной расчёт</span>
+              <div class="bar-track"><div class="bar-fill" style="width: 94%; background: var(--accent-amber);"></div></div>
+            </div>
+            <div class="bar-row">
+              <span class="bar-label">Автопакет ТЗ</span>
+              <div class="bar-track"><div class="bar-fill" style="width: 18%; background: var(--accent-blue);"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bento-card">
+          <div>
+            <span class="tag-pill tag-crimson mono">УЗЕЛ 03 • СТЕНЫ МЕЖДУ ОТДЕЛАМИ</span>
+            <h3 class="card-h3" style="margin-top: 12px;">«Забытые» заказы и слепая зона цеха</h3>
+            <p class="card-p">Точечные ИИ-чаты у менеджеров не сшивают компанию: заказ оплачен, но металл вовремя не купили или не приняли на склад, а очереди перед станками не видны.</p>
+          </div>
+          <div class="compare-bars">
+            <div class="bar-row">
+              <span class="bar-label">Слепые стыки</span>
+              <div class="bar-track"><div class="bar-fill" style="width: 90%; background: var(--accent-crimson);"></div></div>
+            </div>
+            <div class="bar-row">
+              <span class="bar-label">SLA-бегунок</span>
+              <div class="bar-track"><div class="bar-fill" style="width: 100%; background: var(--accent-emerald);"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <footer class="slide-footer">
+        <span>Диагностика опирается на реальную операционную механику мелкосерийного машиностроения</span>
+        <span class="mono">СЛАЙД 02 / 08</span>
+      </footer>
+    </section>
+
+    <!-- =========================================================
+         SLIDE 3: 3 INTEGRATION CONTOURS ARCHITECTURE MATRIX
+         ========================================================= -->
+    <section class="slide" data-title="03. Варианты интеграции ИИ: 3 контура">
+      <div>
+        <div class="eyebrow">Модульная архитектура на выбор</div>
+        <h2 class="slide-title">Варианты интеграции ИИ: 3 контура для завода</h2>
+        <p class="slide-subtitle">Система разделена на три независимых функциональных контура — вы выбираете глубину внедрения под текущие приоритеты бизнеса.</p>
+      </div>
+
+      <div class="grid-3" style="margin-top: 20px; flex: 1;">
+        <!-- Contour A -->
+        <div class="bento-card accent-outline">
+          <div>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span class="tag-pill tag-blue mono">ВАРИАНТ А • SUPPLY & COST AI</span>
+              <span class="tag-pill tag-emerald mono">ЯДРО БАЗЫ</span>
+            </div>
+            <h3 class="card-h3" style="margin-top: 14px; font-size: 19px;">Контур «Обеспечение и Себестоимость»</h3>
+            <p class="card-p" style="margin-bottom: 12px;">Снижение закупочной и транспортной себестоимости, рост конверсии в тендерах по проходной цене.</p>
+            <ul class="clean-list">
+              <li><strong>Агрегатор пулов металла:</strong> вытягивает потребность в прокате из массива тендеров в единые оптовые лоты.</li>
+              <li><strong>ИИ-ревизор логистики (АТИ.СУ):</strong> сверяет каждую заявку логиста с рыночным коридором и попутными догрузами.</li>
+              <li><strong>Make-or-Buy и Пакет кооперации:</strong> расчёт точки безразличия и готовое ТЗ с целевой ценой для подрядчика.</li>
+            </ul>
+          </div>
+          <div style="margin-top: 16px; padding: 10px 12px; border-radius: 12px; background: var(--bg-card-subtle); font-size: 12px; color: var(--text-secondary);">
+            <strong>Фокус:</strong> прямая экономия денег на металле, рейсах и кооперации.
+          </div>
+        </div>
+
+        <!-- Contour B -->
+        <div class="bento-card accent-outline">
+          <div>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span class="tag-pill tag-emerald mono">ВАРИАНТ Б • OPERATIONS & SLA AI</span>
+              <span class="tag-pill tag-emerald mono">ЯДРО БАЗЫ</span>
+            </div>
+            <h3 class="card-h3" style="margin-top: 14px; font-size: 19px;">Контур «Цифровой бегунок и Сшивка отделов»</h3>
+            <p class="card-p" style="margin-bottom: 12px;">Ликвидация «стен между кабинетами», забытых закупок сырья и задержек складской приёмки.</p>
+            <ul class="clean-list">
+              <li><strong>Единая среда компании:</strong> сквозные карточки заказов (MD / Obsidian + 1С) от КП до отгрузки.</li>
+              <li><strong>SLA-контролёр отделов:</strong> жёсткие нормативы времени на этап и ежедневная сводка узких мест директору.</li>
+              <li><strong>Цех без компьютеров:</strong> бумажные маршрутные листы со штрихкодом (фиксация этапа за 3 секунды).</li>
+            </ul>
+          </div>
+          <div style="margin-top: 16px; padding: 10px 12px; border-radius: 12px; background: var(--bg-card-subtle); font-size: 12px; color: var(--text-secondary);">
+            <strong>Фокус:</strong> скорость прохождения заказа и прозрачность узких мест.
+          </div>
+        </div>
+
+        <!-- Contour C -->
+        <div class="bento-card">
+          <div>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span class="tag-pill tag-indigo mono">ВАРИАНТ В • SHOPFLOOR & TECH AI</span>
+              <span class="tag-pill mono" style="background: var(--bg-pill); color: var(--text-secondary);">БАЗА + ЭТАП 2</span>
+            </div>
+            <h3 class="card-h3" style="margin-top: 14px; font-size: 19px;">Контур «Инженерный и Цеховой»</h3>
+            <p class="card-p" style="margin-bottom: 12px;">Ускорение съёма металла, сокращение переналадок и защита от размерного брака на ЧПУ.</p>
+            <ul class="clean-list">
+              <li><strong>ИИ-справочник технолога:</strong> подбор высокопроизводительных державок, пластин и режимов резания.</li>
+              <li><strong>Планировщик ЧПУ (EDD):</strong> очередь станков с учётом матрицы переналадок по группам сплавов.</li>
+              <li><strong>Телеметрия стоек и ОТК:</strong> Read-Only контроль ресурса режущих кромок и индекса стабильности <code>Cpk</code>.</li>
+            </ul>
+          </div>
+          <div style="margin-top: 16px; padding: 10px 12px; border-radius: 12px; background: var(--bg-card-subtle); font-size: 12px; color: var(--text-secondary);">
+            <strong>Фокус:</strong> рост выработки станков и инженерные компетенции.
+          </div>
+        </div>
+      </div>
+
+      <footer class="slide-footer">
+        <span>Связанная модель данных: подключение любого контура не требует переделки остальных</span>
+        <span class="mono">СЛАЙД 03 / 08</span>
+      </footer>
+    </section>
+
+    <!-- =========================================================
+         SLIDE 4: APPLE KEYNOTE BENTO GRID — TARGET KPIS
+         ========================================================= -->
+    <section class="slide" data-title="04. Цели и целевые метрики (KPI)">
+      <div>
+        <div class="eyebrow">Операционные ориентиры системы</div>
+        <h2 class="slide-title">Цели, целевые метрики (KPI) и желаемый результат</h2>
+        <p class="slide-subtitle">Прозрачные измеримые индикаторы эффективности, которые фиксируются при запуске базового контура на реальных данных завода.</p>
+      </div>
+
+      <div class="kpi-bento-grid">
+        <!-- Bento 1: Days to Minutes -->
+        <div class="bento-card col-7">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 16px;">
+            <div>
+              <span class="tag-pill tag-blue mono">СКОРОСТЬ КОММЕРЦИИ И КООПЕРАЦИИ</span>
+              <div class="hero-metric" style="margin-top: 12px;">Дни → Минуты</div>
+              <p class="card-p" style="margin-top: 8px; max-width: 440px;">Ускорение расчёта многопозиционного КП в 3 маршрутах и автогенерации готового пакета ТЗ с проходной ценой для подрядчика.</p>
+            </div>
+            <svg width="150" height="96" viewBox="0 0 150 96" aria-hidden="true">
+              <rect x="6" y="16" width="138" height="22" rx="7" fill="var(--bg-pill)"/>
+              <rect x="6" y="16" width="132" height="22" rx="7" fill="var(--accent-amber)" opacity="0.75"/>
+              <text x="14" y="31" fill="#fff" font-size="10" font-weight="700">Ручной цикл (1–3 дн.)</text>
+              <rect x="6" y="52" width="138" height="22" rx="7" fill="var(--bg-pill)"/>
+              <rect x="6" y="52" width="32" height="22" rx="7" fill="var(--accent-blue)"/>
+              <text x="46" y="67" fill="var(--accent-blue)" font-size="10.5" font-weight="700">Makota (минуты)</text>
+            </svg>
+          </div>
+        </div>
+
+        <!-- Bento 2: 100% ATI.SU -->
+        <div class="bento-card col-5">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <span class="tag-pill tag-emerald mono">КОНТРОЛЬ ЛОГИСТИКИ</span>
+              <div class="hero-metric" style="margin-top: 12px; color: var(--accent-emerald);">100%</div>
+              <p class="card-p" style="margin-top: 8px;">Автоматическая сверка заявок логиста с рыночными коридорами АТИ.СУ и догрузами <strong>до оплаты счёта</strong>.</p>
+            </div>
+            <svg width="86" height="86" viewBox="0 0 86 86" aria-hidden="true">
+              <circle cx="43" cy="43" r="34" fill="none" stroke="var(--bg-pill)" stroke-width="8"/>
+              <circle cx="43" cy="43" r="34" fill="none" stroke="var(--accent-emerald)" stroke-width="8" stroke-dasharray="214" stroke-dashoffset="0" stroke-linecap="round"/>
+              <text x="43" y="47" text-anchor="middle" fill="var(--text-primary)" font-size="13" font-weight="700">ATI.SU</text>
+            </svg>
+          </div>
+        </div>
+
+        <!-- Bento 3: 0 Forgotten Orders -->
+        <div class="bento-card col-4">
+          <span class="tag-pill tag-crimson mono">ДИСЦИПЛИНА SLA ОТДЕЛОВ</span>
+          <div class="hero-metric" style="margin-top: 10px;">0 «забытых»</div>
+          <p class="card-p" style="margin-top: 6px;">Заказов между договором, закупкой проката и приёмкой склада благодаря ежедневному SLA-радару.</p>
+        </div>
+
+        <!-- Bento 4: 3 Seconds Shopfloor Scan -->
+        <div class="bento-card col-4">
+          <span class="tag-pill tag-amber mono">ВИДИМОСТЬ ОЧЕРЕДЕЙ ЦЕХА</span>
+          <div class="hero-metric" style="margin-top: 10px;">3 сек</div>
+          <p class="card-p" style="margin-top: 6px;">На фиксацию старта или сдачи партии сканером по бумажному маршрутному листу — видно узкие места.</p>
+        </div>
+
+        <!-- Bento 5: Make or Buy Precision -->
+        <div class="bento-card col-4">
+          <span class="tag-pill tag-indigo mono">КОНВЕРСИЯ ТЕНДЕРОВ</span>
+          <div class="hero-metric" style="margin-top: 10px;">Make / Buy</div>
+          <p class="card-p" style="margin-top: 6px;">Точный расчёт точки безразличия <code>N*</code> и проходной цены за счёт пулов металла и кооперации.</p>
+        </div>
+      </div>
+
+      <footer class="slide-footer">
+        <span>Без вымышленных обещаний: базовый замер KPI проводится на вашей исторической выборке в Спринте 1</span>
+        <span class="mono">СЛАЙД 04 / 08</span>
+      </footer>
+    </section>
+
+    <!-- =========================================================
+         SLIDE 5: RECOMMENDED 8-WEEK BASE (4 MODULES 2x2)
+         ========================================================= -->
+    <section class="slide" data-title="05. Рекомендуемая База (8 недель)">
+      <div>
+        <div class="eyebrow">Оптимальная точка входа (Максимальный ROI)</div>
+        <h2 class="slide-title">Рекомендуемая База на 8 недель: 4 модуля ядра</h2>
+        <p class="slide-subtitle">Закрывает главные управленческие и финансовые боли сразу — без риска застрять на месяцы в аппаратной интеграции со стойками ЧПУ.</p>
+      </div>
+
+      <div class="grid-2x2">
+        <!-- Module 1 -->
+        <div class="bento-card">
+          <div>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span class="tag-pill tag-blue mono">МОДУЛЬ 01 • ORDER SLA</span>
+              <span class="mono" style="font-size: 11px; color: var(--text-muted);">Контур Б</span>
+            </div>
+            <h3 class="card-h3" style="margin-top: 10px;">Единая среда отделов + «Цифровой бегунок»</h3>
+            <p class="card-p">Объединяет Продажи, Технолога, Снабжение, Склад и Цех поверх понятных MD-карточек (Obsidian) и выгрузок 1С. Бот-контролёр пингует ответственных и шлёт сводку директору.</p>
+          </div>
+          <div style="display: flex; align-items: center; gap: 6px; margin-top: 14px; flex-wrap: wrap;">
+            <span class="tag-pill mono" style="background: var(--bg-card-subtle);">КП ≤ 4ч</span><span>→</span>
+            <span class="tag-pill mono" style="background: var(--bg-card-subtle);">Снабжение ≤ 24ч</span><span>→</span>
+            <span class="tag-pill mono" style="background: var(--bg-card-subtle);">Склад ≤ 12ч</span><span>→</span>
+            <span class="tag-pill tag-emerald mono">Цех ≤ 72ч</span>
+          </div>
+        </div>
+
+        <!-- Module 2 -->
+        <div class="bento-card">
+          <div>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span class="tag-pill tag-emerald mono">МОДУЛЬ 02 • ATI.SU & METAL POOL</span>
+              <span class="mono" style="font-size: 11px; color: var(--text-muted);">Контур А</span>
+            </div>
+            <h3 class="card-h3" style="margin-top: 10px;">Ревизор логистики АТИ.СУ + Пулы металла</h3>
+            <p class="card-p">Парсит вашу тендерную выгрузку (выигранные и проигранные торги) для объединения типового проката в оптовые лоты и автоматически сверяет ставки логиста с рынком догрузов.</p>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px; margin-top: 14px;">
+            <span class="tag-pill tag-emerald mono">✓ Фильтр переплат АТИ.СУ</span>
+            <span class="tag-pill tag-blue mono">✓ Консолидация марок стали</span>
+          </div>
+        </div>
+
+        <!-- Module 3 -->
+        <div class="bento-card">
+          <div>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span class="tag-pill tag-indigo mono">МОДУЛЬ 03 • MAKE-OR-BUY & SUBCONTRACT</span>
+              <span class="mono" style="font-size: 11px; color: var(--text-muted);">Контур А + В</span>
+            </div>
+            <h3 class="card-h3" style="margin-top: 10px;">Калькулятор Make-or-Buy + Пакет для кооперации</h3>
+            <p class="card-p">Считает собственную себестоимость и формирует готовый <strong>«Пакет подрядчика»</strong> (чертёж, рекомендуемая технология/инструмент и ваша целевая проходная цена) + базу режимов технологу.</p>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px; margin-top: 14px;">
+            <span class="tag-pill tag-indigo mono">Чертёж + Техмаршрут + Целевая цена PDF/MD</span>
+          </div>
+        </div>
+
+        <!-- Module 4 -->
+        <div class="bento-card">
+          <div>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span class="tag-pill tag-amber mono">МОДУЛЬ 04 • BARCODE SHOPFLOOR</span>
+              <span class="mono" style="font-size: 11px; color: var(--text-muted);">По Голдратту</span>
+            </div>
+            <h3 class="card-h3" style="margin-top: 10px;">Связь с цехом без ПК (Штрихкоды + Узкие места)</h3>
+            <p class="card-p">Печать привычных бумажных маршрутных листов с крупным штрихкодом. Мастер или рабочий сканером отмечает «Взял / Сдал» — директор видит, перед каким участком копится очередь.</p>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px; margin-top: 14px;">
+            <span class="tag-pill tag-amber mono">║▌║█║ Сканирование 3 сек • 0 планшетов у станков</span>
+          </div>
+        </div>
+      </div>
+
+      <footer class="slide-footer">
+        <span>Все 4 модуля уже имеют рабочие расчётные прототипы в репозитории Makota (`engine/`)</span>
+        <span class="mono">СЛАЙД 05 / 08</span>
+      </footer>
+    </section>
+
+    <!-- =========================================================
+         SLIDE 6: SECURITY & 8-LAYER CORPORATE AI ARCHITECTURE
+         ========================================================= -->
+    <section class="slide" data-title="06. Архитектура безопасности и ИИ">
+      <div>
+        <div class="eyebrow">Инженерная надёжность и защита периметра</div>
+        <h2 class="slide-title">Архитектура безопасности: «8 слоёв корпоративного ИИ»</h2>
+        <p class="slide-subtitle">Нейросеть исключена из контура арифметики: деньги, режимы и сроки считает детерминированный код, а все коммерческие данные остаются внутри завода.</p>
+      </div>
+
+      <div class="grid-hero" style="margin-top: 18px;">
+        <!-- Left Infographic: Concentric / Layered Stack -->
+        <div class="bento-card subtle" style="justify-content: center;">
+          <svg viewBox="0 0 520 330" width="100%" height="auto" role="img" aria-label="8 слоёв защиты корпоративного ИИ">
+            <!-- Outer Layer: Security & Governance -->
+            <rect x="14" y="12" width="492" height="306" rx="22" fill="var(--bg-card)" stroke="var(--border-strong)" stroke-width="1.2"/>
+            <text x="34" y="38" fill="var(--text-muted)" font-size="10.5" font-weight="700" letter-spacing="0.06em">ПЕРИМЕТР ЗАВОДА • РОЛЕВОЙ ДОСТУП • ЗАЩИТА ОТ PROMPT INJECTION • АУДИТ И ЭВАЛЫ</text>
+
+            <!-- Middle Layer: Local LLM + Factory RAG -->
+            <rect x="36" y="54" width="448" height="206" rx="18" fill="var(--accent-blue-soft)" stroke="var(--accent-blue)" stroke-width="1.2"/>
+            <text x="56" y="80" fill="var(--accent-blue)" font-size="11" font-weight="700" letter-spacing="0.05em">ЛОКАЛЬНАЯ LLM + ИНДЕКСИРОВАННАЯ БАЗА ЗАВОДА (RAG + ЗАЩИТА ОТ УСТАРЕВАНИЯ)</text>
+            <text x="56" y="100" fill="var(--text-secondary)" font-size="11.5">Техкарты • Марочник сталей • Прайсы поставщиков • Протоколы ОТК • Архив тендеров</text>
+
+            <!-- Inner Core: Deterministic Math Engine -->
+            <rect x="60" y="118" width="400" height="122" rx="14" fill="var(--bg-card)" stroke="var(--accent-emerald)" stroke-width="1.8"/>
+            <text x="80" y="144" fill="var(--accent-emerald)" font-size="11" font-weight="700" letter-spacing="0.06em">ЯДРО ТОЧНЫХ РАСЧЁТОВ (ENGINE/ PYTHON) — 100% ДЕТЕРМИНИЗМ</text>
+            <text x="80" y="168" fill="var(--text-primary)" font-size="12.5" font-weight="600">Калькулятор КП • Точка Make-or-Buy (N*) • Коридоры АТИ.СУ • SLA</text>
+            <text x="80" y="190" fill="var(--text-secondary)" font-size="11.5">Каждую цифру можно проверить по формуле. ИИ только вызывает расчёт и готовит сводку.</text>
+            <rect x="80" y="204" width="235" height="24" rx="7" fill="var(--accent-emerald-soft)"/>
+            <text x="92" y="220" fill="var(--accent-emerald)" font-size="11" font-weight="700">✓ Финальное решение утверждает человек</text>
+
+            <!-- Bottom Status Pills -->
+            <rect x="36" y="274" width="140" height="28" rx="8" fill="var(--bg-card-subtle)"/>
+            <text x="106" y="292" text-anchor="middle" fill="var(--text-secondary)" font-size="11" font-weight="600">Директор → Маржа</text>
+            <rect x="190" y="274" width="140" height="28" rx="8" fill="var(--bg-card-subtle)"/>
+            <text x="260" y="292" text-anchor="middle" fill="var(--text-secondary)" font-size="11" font-weight="600">Снабжение → Пулы</text>
+            <rect x="344" y="274" width="140" height="28" rx="8" fill="var(--bg-card-subtle)"/>
+            <text x="414" y="292" text-anchor="middle" fill="var(--text-secondary)" font-size="11" font-weight="600">Мастер → Очередь</text>
+          </svg>
+        </div>
+
+        <!-- Right Column: 3 Concrete Guarantees -->
+        <div style="display: flex; flex-direction: column; gap: 14px; justify-content: space-between;">
+          <div class="bento-card">
+            <span class="tag-pill tag-emerald mono">ISA/IEC 62443 • READ-ONLY</span>
+            <h3 class="card-h3" style="margin-top: 8px;">100% безопасность станков ЧПУ</h3>
+            <p class="card-p">Система никогда не управляет станком и не меняет G-код. Любое подключение телеметрии на следующих этапах изолировано в режиме «Только чтение».</p>
+          </div>
+
+          <div class="bento-card">
+            <span class="tag-pill tag-blue mono">ON-PREMISE • NDA</span>
+            <h3 class="card-h3" style="margin-top: 8px;">Коммерческая тайна внутри периметра</h3>
+            <p class="card-p">Чертежи заказчиков, закупочные прайсы металла и себестоимость работают на локальном сервере предприятия без передачи во внешние облака.</p>
+          </div>
+
+          <div class="bento-card">
+            <span class="tag-pill tag-amber mono">ZERO TABLETS IN COOLANT</span>
+            <h3 class="card-h3" style="margin-top: 8px;">Уважение к реальной работе в цеху</h3>
+            <p class="card-p">Токари не печатают в таблицах руками в масле и СОЖ — привычный бумажный маршрутный лист дополняется промышленным сканером штрихкодов.</p>
+          </div>
+        </div>
+      </div>
+
+      <footer class="slide-footer">
+        <span>Инженерная модель «8 слоёв корпоративного ИИ» исключает галлюцинации в коммерческих расчётах</span>
+        <span class="mono">СЛАЙД 06 / 08</span>
+      </footer>
+    </section>
+
+    <!-- =========================================================
+         SLIDE 7: 8-WEEK ROADMAP GANTT INFOGRAPHIC
+         ========================================================= -->
+    <section class="slide" data-title="07. Дорожная карта Базы: 8 недель">
+      <div>
+        <div class="eyebrow">Итеративное внедрение без остановки завода</div>
+        <h2 class="slide-title">Дорожная карта базового внедрения: 8 недель</h2>
+        <p class="slide-subtitle">Четыре двухнедельных спринта — каждые 14 дней руководство получает готовый работающий инструмент на реальных данных своего производства.</p>
+      </div>
+
+      <div class="gantt-container">
+        <div class="gantt-header">
+          <span>Спринт и фокус работ</span>
+          <span>Недели 1–2</span>
+          <span>Недели 3–4</span>
+          <span>Недели 5–6</span>
+          <span>Недели 7–8</span>
+        </div>
+
+        <!-- Sprint 1 -->
+        <div class="gantt-row">
+          <div>
+            <span class="tag-pill tag-blue mono">СПРИНТ 01</span>
+            <div class="card-h3" style="font-size: 15px; margin-top: 6px;">Аудит данных и единый контур</div>
+          </div>
+          <div class="gantt-bar" style="background: var(--accent-blue-soft); color: var(--accent-blue); border: 1px solid var(--accent-blue);">
+            Подключение выгрузки тендеров и 1С, структура MD-карточек и SLA
+          </div>
+          <div style="grid-column: span 3; font-size: 13px; color: var(--text-secondary); padding-left: 8px;">
+            <strong>Результат на выходе:</strong> единая схема прохождения заказа + отчёт резервов экономии на вашем архиве тендеров.
+          </div>
+        </div>
+
+        <!-- Sprint 2 -->
+        <div class="gantt-row">
+          <div>
+            <span class="tag-pill tag-emerald mono">СПРИНТ 02</span>
+            <div class="card-h3" style="font-size: 15px; margin-top: 6px;">Бегунок + Закупки и АТИ.СУ</div>
+          </div>
+          <div></div>
+          <div class="gantt-bar" style="background: var(--accent-emerald-soft); color: var(--accent-emerald); border: 1px solid var(--accent-emerald);">
+            Запуск SLA-радара отделов, ревизора АТИ.СУ и пулов металла
+          </div>
+          <div style="grid-column: span 2; font-size: 13px; color: var(--text-secondary); padding-left: 8px;">
+            <strong>Результат на выходе:</strong> 0 «забытых» заказов между отделами + автопроверка ставок перевозчиков и сбор лотов стали.
+          </div>
+        </div>
+
+        <!-- Sprint 3 -->
+        <div class="gantt-row">
+          <div>
+            <span class="tag-pill tag-indigo mono">СПРИНТ 03</span>
+            <div class="card-h3" style="font-size: 15px; margin-top: 6px;">Make-or-Buy и Кооперация</div>
+          </div>
+          <div></div><div></div>
+          <div class="gantt-bar" style="background: var(--accent-indigo-soft); color: var(--accent-indigo); border: 1px solid var(--accent-indigo);">
+            Расчёт маршрутов КП, справочник инструмента и Пакет подрядчика
+          </div>
+          <div style="font-size: 13px; color: var(--text-secondary); padding-left: 8px;">
+            <strong>Результат на выходе:</strong> просчёт комплектаций и ТЗ с целевой ценой для партнёров за минуты.
+          </div>
+        </div>
+
+        <!-- Sprint 4 -->
+        <div class="gantt-row">
+          <div>
+            <span class="tag-pill tag-amber mono">СПРИНТ 04</span>
+            <div class="card-h3" style="font-size: 15px; margin-top: 6px;">Штрихкоды в цеху и сдача ядра</div>
+          </div>
+          <div></div><div></div><div></div>
+          <div class="gantt-bar" style="background: var(--accent-amber-soft); color: var(--accent-amber); border: 1px solid var(--accent-amber);">
+            Маршрутные листы со сканером, карта очередей участков и замер KPI
+          </div>
+        </div>
+      </div>
+
+      <footer class="slide-footer">
+        <span>Каждые 2 недели — демонстрация работающего функционала и верификация экономического эффекта</span>
+        <span class="mono">СЛАЙД 07 / 08</span>
+      </footer>
+    </section>
+
+    <!-- =========================================================
+         SLIDE 8: POST-BASE EXPANSIONS & 48-HOUR FAST START
+         ========================================================= -->
+    <section class="slide" data-title="08. Модули развития и быстрый старт">
+      <div>
+        <div class="eyebrow">Масштабирование после базовых 8 недель</div>
+        <h2 class="slide-title">Модули развития после Базы и протокол старта</h2>
+        <p class="slide-subtitle">Тяжёлые аппаратные и внешние R&D-контуры вынесены во второй этап и подключаются индивидуально после окупаемости базового ядра.</p>
+      </div>
+
+      <div class="grid-3" style="margin-top: 18px;">
+        <div class="bento-card">
+          <div>
+            <span class="tag-pill tag-indigo mono">РАСШИРЕНИЕ 01 • DEEP-TECH ЧПУ</span>
+            <h3 class="card-h3" style="margin-top: 12px;">Прямая телеметрия стоек и износ пластин</h3>
+            <p class="card-p">Изолированный Read-Only съём сигналов со стоек ЧПУ, поминутный контроль наработки режущих кромок до появления размерного брака и авторасписание переналадок.</p>
+          </div>
+        </div>
+
+        <div class="bento-card">
+          <div>
+            <span class="tag-pill tag-blue mono">РАСШИРЕНИЕ 02 • SALES AI AGENT</span>
+            <h3 class="card-h3" style="margin-top: 12px;">ИИ-агент отдела продаж и тендеров</h3>
+            <p class="card-p">Автоматическая первичная квалификация входящих многопозиционных запросов и проактивная работа по базе заказчиков под свободные окна оборудования.</p>
+          </div>
+        </div>
+
+        <div class="bento-card">
+          <div>
+            <span class="tag-pill tag-emerald mono">РАСШИРЕНИЕ 03 • R&D TECH SCOUT</span>
+            <h3 class="card-h3" style="margin-top: 12px;">Автономный скаут мировых технологий</h3>
+            <p class="card-p">Ежедневный ИИ-мониторинг практик металлообработки США, Азии и Европы: новые геометрии пластин, оснастка и способы ускорения съёма металла.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom Call-to-Action Protocol Infographic -->
+      <div class="bento-card accent-outline" style="margin-top: 18px; padding: 22px 28px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 14px;">
+          <div>
+            <span class="mono" style="font-size: 11px; font-weight: 700; color: var(--accent-blue); letter-spacing: 0.06em;">ПРОТОКОЛ ПЕРЕХОДА К ПИЛОТУ НА ДАННЫХ ВАШЕГО ЗАВОДА</span>
+            <h3 class="card-h3" style="font-size: 19px; margin-top: 4px;">Расчёт реального резерва экономии на вашей номенклатуре за 48 часов</h3>
+          </div>
+          <a href="makota_interactive_dashboard.html" style="text-decoration: none;">
+            <span class="tag-pill tag-blue" style="padding: 8px 16px; font-size: 13px;">Открыть живой демо-пульт →</span>
+          </a>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px;">
+          <div style="background: var(--bg-card-subtle); border-radius: 14px; padding: 12px 16px;">
+            <span class="mono" style="font-size: 11px; color: var(--accent-blue); font-weight: 700;">ШАГ 01 • ДЕНЬ 1</span>
+            <div style="font-size: 13.5px; font-weight: 600; margin-top: 4px;">Подписание NDA и срез данных</div>
+            <div style="font-size: 12px; color: var(--text-secondary); margin-top: 2px;">Архив тендеров + 10–15 типовых заказов и ставок доставки.</div>
+          </div>
+          <div style="background: var(--bg-card-subtle); border-radius: 14px; padding: 12px 16px;">
+            <span class="mono" style="font-size: 11px; color: var(--accent-emerald); font-weight: 700;">ШАГ 02 • ВИЗИТ (1 ДЕНЬ)</span>
+            <div style="font-size: 13.5px; font-weight: 600; margin-top: 4px;">Очная сессия на площадке</div>
+            <div style="font-size: 12px; color: var(--text-secondary); margin-top: 2px;">Синхронизация с главным технологом, снабжением и начальником цеха.</div>
+          </div>
+          <div style="background: var(--bg-card-subtle); border-radius: 14px; padding: 12px 16px;">
+            <span class="mono" style="font-size: 11px; color: var(--accent-indigo); font-weight: 700;">ШАГ 03 • ЧЕРЕЗ 48 ЧАСОВ</span>
+            <div style="font-size: 13.5px; font-weight: 600; margin-top: 4px;">Защита расчёта и старт Спринта 1</div>
+            <div style="font-size: 12px; color: var(--text-secondary); margin-top: 2px;">Демонстрация пулов металла, ставок АТИ.СУ и карты SLA собственнику.</div>
+          </div>
+        </div>
+      </div>
+
+      <footer class="slide-footer">
+        <span>Makota Industrial OS • Готовое расчётное ядро + индивидуальная адаптация за 8 недель</span>
+        <span class="mono">СЛАЙД 08 / 08</span>
+      </footer>
+    </section>
+
+  </main>
+
+  <!-- Slide Grid Overview Modal (Press G) -->
+  <div class="overview-overlay" id="overview-overlay" onclick="if(event.target===this) toggleOverview()">
+    <div style="max-width: 1280px; margin: 0 auto 20px; display: flex; justify-content: space-between; align-items: center;">
+      <h3 style="font-size: 20px; font-weight: 700;">Все слайды презентации (8)</h3>
+      <button class="icon-btn" onclick="toggleOverview()">✕ Закрыть (Esc)</button>
+    </div>
+    <div class="overview-grid" id="overview-grid"></div>
+  </div>
+
+  <script>
+    const slides = Array.from(document.querySelectorAll('.slide'));
+    const dotsContainer = document.getElementById('progress-dots');
+    const counterEl = document.getElementById('slide-counter');
+    const overviewOverlay = document.getElementById('overview-overlay');
+    const overviewGrid = document.getElementById('overview-grid');
+    let current = 0;
+
+    function initDeck() {
+      slides.forEach((slide, idx) => {
+        const dot = document.createElement('button');
+        dot.className = 'dot-btn' + (idx === 0 ? ' active' : '');
+        dot.title = slide.dataset.title || `Слайд ${idx + 1}`;
+        dot.onclick = () => goToSlide(idx);
+        dotsContainer.appendChild(dot);
+
+        const card = document.createElement('div');
+        card.className = 'overview-item';
+        const h = slide.querySelector('.slide-title')?.innerText || slide.dataset.title;
+        const sub = slide.querySelector('.eyebrow')?.innerText || '';
+        card.innerHTML = `
+          <div class="mono" style="font-size:11px; color:var(--accent-blue); font-weight:700; margin-bottom:6px;">0${idx + 1} • ${sub}</div>
+          <div style="font-size:15px; font-weight:650; line-height:1.3;">${h}</div>
+        `;
+        card.onclick = () => {
+          goToSlide(idx);
+          toggleOverview(false);
+        };
+        overviewGrid.appendChild(card);
+      });
+      updateUI();
+    }
+
+    function updateUI() {
+      slides.forEach((s, i) => s.classList.toggle('active', i === current));
+      Array.from(dotsContainer.children).forEach((d, i) => d.classList.toggle('active', i === current));
+      counterEl.textContent = `0${current + 1} / 0${slides.length}`;
+    }
+
+    function goToSlide(idx) {
+      current = (idx + slides.length) % slides.length;
+      updateUI();
+    }
+
+    function nextSlide() { goToSlide(current + 1); }
+    function prevSlide() { goToSlide(current - 1); }
+
+    function toggleTheme() {
+      const root = document.documentElement;
+      const next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+      root.setAttribute('data-theme', next);
+    }
+
+    function toggleOverview(force) {
+      const shouldOpen = typeof force === 'boolean' ? force : !overviewOverlay.classList.contains('open');
+      overviewOverlay.classList.toggle('open', shouldOpen);
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (overviewOverlay.classList.contains('open') && e.key === 'Escape') {
+        toggleOverview(false);
+        return;
+      }
+      if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+        e.preventDefault();
+        nextSlide();
+      } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+        e.preventDefault();
+        prevSlide();
+      } else if (e.key === 'Home') {
+        goToSlide(0);
+      } else if (e.key === 'End') {
+        goToSlide(slides.length - 1);
+      } else if (e.key === 't' || e.key === 'T' || e.key === 'е' || e.key === 'Е') {
+        toggleTheme();
+      } else if (e.key === 'g' || e.key === 'G' || e.key === 'п' || e.key === 'П') {
+        toggleOverview();
+      }
+    });
+
+    initDeck();
+  </script>
+</body>
+</html>

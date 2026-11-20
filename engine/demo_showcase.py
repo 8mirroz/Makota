@@ -33,7 +33,7 @@ def generate_showcase_output(vault_dir: Path = _REPO_ROOT) -> str:
         "",
     ]
 
-    # 1. Cost Engineer & RegionStroy Tender Case
+    # 1. Cost Engineer & Tender / Make-or-Buy Simulation
     routes = CostEngineer.generate_three_routes(
         part_name="Фланец переходной D140 (ст. 40Х)",
         material="40Х",
@@ -58,14 +58,14 @@ def generate_showcase_output(vault_dir: Path = _REPO_ROOT) -> str:
 
     lines.extend(
         [
-            "[1/6] AI COST ENGINEER & ТЕНДЕРНЫЙ АНАЛИЗ (Кейс «РегионСтрой»)",
+            "[1/6] AI COST ENGINEER & МОДЕЛИРОВАНИЕ ТЕНДЕРА / КООПЕРАЦИИ (Make-or-Buy)",
             f"  • Сгенерировано маршрутов: {len(routes)} (A: Базовый, B: Оптимальный ЧПУ, C: Кооперация)",
-            f"  • Старая себестоимость / Старое КП: {bid['baseline_cost_rub']:,.0f} ₽ / {bid['baseline_quote_rub']:,.0f} ₽ (Проигрыш)",
-            f"  • Цена победителя (РегионСтрой):    {bid['competitor_price_rub']:,.0f} ₽",
-            f"  • Новая себестоимость Makota:       {bid['optimized_cost_rub']:,.0f} ₽ (экономия {bid['savings_against_baseline_cost_rub']:,.0f} ₽)",
-            f"  • Рекомендуемая победная цена:      {bid['recommended_winning_price_rub']:,.0f} ₽ (дельта к конкуренту: {bid['price_delta_to_competitor_rub']:,.0f} ₽)",
-            f"  • Чистая прибыль завода со сделки:  +{bid['projected_margin_rub']:,.0f} ₽ (эффективная маржа {bid['effective_margin_percent']}%)",
-            f"  • Анализ Make-or-Buy (150 шт):      требуется {mob['required_machine_hours']} станко-ч -> стратегия [{mob['recommendation']}]",
+            f"  • Базовая с/с / Базовое КП (модель): {bid['baseline_cost_rub']:,.0f} ₽ / {bid['baseline_quote_rub']:,.0f} ₽",
+            f"  • Целевой ориентир рынка (проходная): {bid['competitor_price_rub']:,.0f} ₽",
+            f"  • Оптимизированная с/с Makota:        {bid['optimized_cost_rub']:,.0f} ₽ (резерв {bid['savings_against_baseline_cost_rub']:,.0f} ₽)",
+            f"  • Рекомендуемая победная цена:        {bid['recommended_winning_price_rub']:,.0f} ₽ (дельта к рынку: {bid['price_delta_to_competitor_rub']:,.0f} ₽)",
+            f"  • Расчётная маржа со сделки:          +{bid['projected_margin_rub']:,.0f} ₽ (эффективная маржа {bid['effective_margin_percent']}%)",
+            f"  • Анализ Make-or-Buy (150 шт):        требуется {mob['required_machine_hours']} станко-ч -> стратегия [{mob['recommendation']}]",
             "",
         ]
     )
